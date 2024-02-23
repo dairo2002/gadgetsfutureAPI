@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500;700&display=swap');
+
+body {
+    font-family: 'Quicksand';
+}
+
+.bg_header {
+    /* background-color: #192655; */
+    /* background-color: #1B1A55 ; */
+    background-color: #022C43;
+}
+
+.bg_footer,
+.bg_menu,
+.btn_buscador {
+    background-color: #115173;
+}
+
+.btn_buscador:hover {
+    background-color: #115173;
+}
+
+.btn_carrito {
+    background-color: #115173;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+}
+
+.btn_carrito:hover {
+    background-color: #022C43;
+}
+
+.campoBuscar {
+    width: 400px;
+}
+
+.tarjeta_productos {
+    max-width: 350px;
+    max-height: 420px;
+}
+
+
+.tarjeta_productos img {
+    height: 250px;
+    transition: transform 0.3s ease;
+    overflow: hidden;
+}
+
+.tarjeta_productos img:hover {
+    transform: scale(1.1);
+}
+
+
+/** Campo de busqueda, Formulario de registro, Formulario de inicio sesión, Formulario pedido ***/
+.input-group input:focus,
+.form_registrarse input:focus,
+.form_inicio_sesion input:focus,
+.form_pedido input:focus,
+.form_pedido select:focus,
+.form_pago input:focus,
+.form_filtro_precio input:focus{
+    box-shadow: none;
+    border-color: gray;
+}
+
+
+.offcanvas-footer {
+    background-color: #115173;
+}
+
+#efectivo,
+#nequi {
+    cursor: pointer;
+    font-size: 18px;
+}

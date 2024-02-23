@@ -1,0 +1,17 @@
+{% autoescape off %}
+Hola {{pedido.nombre_completo_pedido}}
+
+Nos complace informarle que su pedido ha sido aprobado y está en proceso de envío.
+
+Detalles del pedido:
+- Número de pedido: {{pedido.numero_pedido}}
+- Destino: {{pedido.region}}
+- Dirección: {{pedido.direccion_completa}}
+
+
+Le mantendremos informado sobre el estado de envío y cualquier actualización adicional.
+
+
+Gracias por su compra y confianza en Gadgets Future!
+
+{% endautoescape %}

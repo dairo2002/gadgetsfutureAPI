@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+  <!-- Carousel -->
+  <div class="mt-1 w-25 ms-auto">
+    {% include 'include/alertas.html' %}
+  </div>
+
+  <div id="carouselExampleAutoplaying" class="carousel slide p-0" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+      <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="1" aria-label="Slide 2"></button>
+      <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="{% static 'img/carousel-1.png' %}" alt="..." height="400px" width="100%" />
+      </div>
+      <div class="carousel-item">
+        <img src="{% static 'img/carousel-2.png' %}" alt="..." height="400px" width="100%" />
+      </div>
+      <div class="carousel-item">
+        <img src="{% static 'img/carousel-3.png' %}" alt="..." height="400px" width="100%" />
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+
+  <section>
+    <div class="container">
+      <h4 class="text-center my-4 fw-bold">LO NUEVO</h4>
+      <div class="row d-flex justify-content-center justify-content-lg-start justify-content-xxl-start">
+        {% for productos in producto %}
+          {% if productos.categoria.descuento %}
+            <div class="col-10 col-sm-6 col-md-5 col-lg-4 col-xl-3 mb-4">
+              <div class="card tarjeta_productos h-100">
+                <div class="card-body">
+                  <a href="{{ productos.get_url_producto }}"><img src="{{ productos.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" /></a>
+                  <h6 class="fw-semibold">{{ productos.nombre }}</h6>
+                  <span>$ {{ productos.descuento_con_precio }}</span>
+                  <del>
+                    <small class="text-muted mx-2">$ {{ productos.precio }}</small>
+                  </del>
+                  {% if productos.stock <= 0 %}
+                    <h5 class="card-title text-danger">Agotado</h5>
+                  {% else %}
+                    <a href="{% url 'add_carrito' productos.id %}" class="btn btn-outline-secondary w-100 my-2">Agregar al carrito</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="col-10 col-sm-6 col-md-5 col-lg-4 col-xl-3 mb-4">
+              <div class="card tarjeta_productos h-100">
+                <div class="card-body">
+                  <a href="{{ productos.get_url_producto }}"><img src="{{ productos.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" /></a>
+                  <h6 class="fw-semibold">{{ productos.nombre }}</h6>
+                  <span class="mb-2">$ {{ productos.precio }}</span>
+                  {% if productos.stock <= 0 %}
+                    <h5 class="card-title text-danger mt-2">Agotado</h5>
+                  {% else %}
+                    <a href="{% url 'add_carrito' productos.id %}" class="btn btn-outline-secondary w-100 my-2">Agregar al carrito</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!--                   
+  <div class="col-md-8 mx-auto my-5">
+    <div class="card bg-body-tertiary">
+      <div class="card-body row p-3">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d6693.336741696099!2d-75.29106520284299!3d2.963610042458694!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses-419!2sco!4v1701388443932!5m2!1ses-419!2sco" width="500" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <h4 class="mt-2">Ubicación</h4>
+        <div class="d-flex mt-1 gap-5">
+          <p class="card-text">
+            <strong>Teléfono:</strong> (57) 5555-5555
+          </p>
+          <p class="card-text">
+            <strong>Horarios:</strong> Lunes a Viernes de 9:00 a 18:00
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>                  -->
+{% endblock %}

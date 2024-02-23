@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <section>
+    <div class="container py-5">
+      {% if not articulo_carrito %}
+        <h2 class="text-muted text-center">El carrito de compras esta vacío</h2>
+        <br />
+        <div class="text-center">
+          <a href="{% url 'tienda' %}" class="btn btn-dark">Continuar comprando <i class="fa-solid fa-store"></i></a>
+        </div>
+      {% else %}
+        <div class="row d-flex justify-content-center h-100">
+          <div class="col col-sm-12 mb-2 col-lg-8 mb-lg-0">
+            <div class="card rounded-4">
+              <div class="card-body p-5">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                  <h3 class="fw-bold mb-0 text-black">Carrito de compras</h3>
+                  <small class="text-muted mb-0">{{ contar_productos }} Articulos</small>
+                </div>
+                <hr class="my-4" />
+                {% for articulo in articulo_carrito %}
+                  {% if articulo.producto.categoria.descuento %}
+                    <div class="row mb-4 d-flex justify-content-between align-items-center">
+                      <div class="col-md-6 col-lg-2 col-xl-2">
+                        <img src="{{ articulo.producto.imagen.url }}" class="img-fluid rounded-3" alt="imagen carrito" />
+                      </div>
+
+                      <div class="col-md-4 col-lg-3 col-xl-3 mt-2 mt-lg-0">
+                        <a href="{{ articulo.producto.get_url_producto }}" class="text-decoration-none"><h6 class="text-black mb-0">{{ articulo.producto.nombre }}</h6></a>
+                      </div>
+                      <div class="col-4 col-lg-3 mt-2 mt-lg-0">
+                        <div class="input-group">
+                          <a href="{% url 'eliminar_cantidad' articulo.producto.id articulo.id %}" class="btn btn-primary"><i class="fa-solid fa-minus fa-lg"></i></a>
+                          <input type="number" value="{{ articulo.cantidad }}" class="form-control form-control-sm inputCantidadCarrito" />
+                          <a href="{% url 'add_carrito' articulo.producto.id %}" class="btn btn-primary"><i class="fa-solid fa-plus fa-lg"></i></a>
+                        </div>
+                      </div>
+                      <div class="col-md-3 col-lg-2 col-xl-2 mt-3 mt-lg-0">
+                        <p class="mb-0">$ {{ articulo.sub_total }}</p>
+                        <del class="text-muted">
+                          <small class="text-muted">${{ articulo.producto.precio }}</small>
+                        </del>
+                      </div>
+                      <div class="col-md-1 col-lg-1 col-xl-1 mt-3 mt-lg-0">
+                        <a href="{% url 'eliminar_producto_carrito' articulo.producto.id articulo.id %}" class=""><i class="fa-solid fa-xmark fa-xl" style="color: #333333;"></i></a>
+                      </div>
+                    </div>
+                    <hr class="my-4" />
+                  {% else %}
+                    <div class="row mb-4 d-flex justify-content-between align-items-center">
+                      <div class="col-md-6 col-lg-2 col-xl-2">
+                        <img src="{{ articulo.producto.imagen.url }}" class="img-fluid rounded-3" alt="imagen carrito" />
+                      </div>
+
+                      <div class="col-md-4 col-lg-3 col-xl-3 mt-2 mt-lg-0">
+                        <a href="{{ articulo.producto.get_url_producto }}" class="text-decoration-none"><h6 class="text-black mb-0">{{ articulo.producto.nombre }}</h6></a>
+                      </div>
+                      <div class="col-4 col-lg-3 mt-2 mt-lg-0">
+                        <div class="input-group">
+                          <a href="{% url 'eliminar_cantidad' articulo.producto.id articulo.id %}" class="btn btn-primary"><i class="fa-solid fa-minus fa-lg"></i></a>
+                          <input type="number" value="{{ articulo.cantidad }}" class="form-control form-control-sm inputCantidadCarrito" />
+                          <a href="{% url 'add_carrito' articulo.producto.id %}" class="btn btn-primary"><i class="fa-solid fa-plus fa-lg"></i></a>
+                        </div>
+                      </div>
+                      <div class="col-md-3 col-lg-2 col-xl-2 mt-3 mt-lg-0">
+                        <p class="mb-0">$ {{ articulo.sub_total }}</p>
+                        <small class="mb-0 text-muted">$ {{ articulo.producto.precio }}</small>
+                      </div>
+                      <div class="col-md-1 col-lg-1 col-xl-1 mt-3 mt-lg-0">
+                        <a href="{% url 'eliminar_producto_carrito' articulo.producto.id articulo.id %}" class=""><i class="fa-solid fa-xmark fa-xl" style="color: #333333;"></i></a>
+                      </div>
+                    </div>
+                    <hr class="my-4" />
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <div class="col col-sm-12 col-lg-4">
+            <div class="card rounded-4">
+              <div class="card-body p-0">
+                <div class="col bgResumen rounded-4">
+                  <div class="p-5">
+                    <h3 class="fw-bold mb-5">Resumen</h3>
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-between">
+                      <h6 class="text-uppercase">Articulos</h6>
+                      <h6 class="text-uppercase mb-3">{{ contar_productos }}</h6>
+                      {% comment %} <h6>$ 132.00</h6> {% endcomment %}
+                    </div>
+                    {% comment %} <div class="d-flex justify-content-between">
+                      <h6 class="text-uppercase mb-3">Envio</h6>
+                      <h6 class="text-uppercase mb-3">$ 12.000</h6>
+                    </div>
+                    <hr class="my-3" /> {% endcomment %}
+
+                    <div class="d-flex justify-content-between mb-3">
+                      <h6 class="text-uppercase">Total</h6>
+                      <h5 class="fw-semibold">$ {{ total }}</h5>
+                    </div>
+                    <div class="text-center">
+                      <a href="{% url 'realizar_pedido' %}" class="btn btn-outline-dark col-10 mb-2">Realizar pedido</a>
+                      <a href="{% url 'tienda' %}" class="btn btn-outline-dark col-10">Continuar comprando</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

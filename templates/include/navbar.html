@@ -1,0 +1,86 @@
+{% load static %}
+<!-- Header -->
+<header class="bg_header">
+  <div class="container">
+    <div class="d-flex justify-content-between my-2">
+      <div>
+        <i class="fa-solid fa-truck-fast fa-lg" style="color: #fafafa;"></i>
+        <span class="text-light">Pedidos nacionales</span>
+      </div>
+      <div class="d-flex align-items-center gap-4">
+        <a href="" class=""><i class="fa-brands fa-whatsapp fa-xl" style="color: #ffffff;"></i></a>
+        <a href="" class=""><i class="fa-brands fa-facebook fa-xl" style="color: #ffffff;"></i></a>
+        <a href="" class=""><i class="fa-brands fa-instagram fa-xl" style="color: #ffffff;"></i></a>
+      </div>
+    </div>
+  </div>
+</header>
+<!-- End header -->
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
+  <div class="container my-1">
+    <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'img/logo.svg' %}" alt="logo" width="180px" /></a>
+    <button class="navbar-toggler btn" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <div class="d-flex flex-column d-lg-none">
+        <hr>
+        <div class="container my-2">
+          <ul class="d-flex justify-content-around flex-column my-auto list-unstyled">
+            <li>
+              <a class="dropdown-item text-decoration-none" href="{% url 'tienda' %}">Todos los productos</a>
+            </li>
+            {% for enlaces in enlace_categoria %}
+              <li>
+                <a class="dropdown-item text-decoration-none" href="{{ enlaces.get_url_categoria }}">{{ enlaces.nombre }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <form action="{% url 'buscar_producto' %}" method="GET" class="mx-auto mb-2 mb-lg-0" role="search">
+        <div class="input-group campoBuscar mx-2">
+          <input name="txtBusqueda" type="search" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" placeholder="¿Qué estás buscando?" required />
+          <button class="btn btn_buscador text-white" type="submit" id="inputGroupFileAddon04">Buscar</button>
+        </div>
+      </form>
+      <div class="d-flex">
+        <div class="me-4">
+          {% if user.is_authenticated %}
+            <small class="title text-muted">Bienvenido <strong>{{ user.nombre }}</strong></small>
+            <div>
+              <a href="{% url 'cerrar_sesion' %}" class="text-decoration-none text-dark">Cerrar Sesión</a>
+            </div>
+          {% else %}
+            <small class="title text-muted">Bienvenido</small>
+            <div>
+              <a href="{% url 'inicio_sesion' %}" class="text-decoration-none text-dark">Iniciar Sesión</a> <span>|</span>
+              <a href="{% url 'registrarse' %}" class="text-decoration-none text-dark">Registrarse</a>
+            </div>
+          {% endif %}
+        </div>
+
+        <button class="btn btn_carrito d-flex flex-column align-items-center p-0 btn_carrito" style="width: 52px; height: 52px; border-radius: 50%;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+          <span class="badge rounded-5" style="font-size: 16px; color: #ffffff;">{{ contar_productos }}</span>
+          <i class="fa-solid fa-cart-arrow-down fa-xl" style="color: #ffffff;"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="bg_menu text-light d-none d-lg-flex">
+  <div class="container my-2">
+    <ul class="d-flex justify-content-around my-auto list-unstyled">
+      <li>
+        <a class="dropdown-item text-decoration-none" href="{% url 'tienda' %}">Todos los productos</a>
+      </li>
+      {% for enlaces in enlace_categoria %}
+        <li>
+          <a class="dropdown-item text-decoration-none" href="{{ enlaces.get_url_categoria }}">{{ enlaces.nombre }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% include 'tienda/canvasCarrito.html' %}
