@@ -12,5 +12,6 @@ urlpatterns = [
 
     path("filtro_precio/", views.filtro_rango_precios, name="filtro_precios"),
 
+    path('valoracion/<int:producto_id>/', views.valoracion, name='valoraciones')
         
 ]

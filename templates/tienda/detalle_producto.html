@@ -3,6 +3,9 @@
 {% block content %}
   <div class="my-4">
     <section class="container">
+      <div class="w-25 ms-auto">
+        {% include 'include/alertas.html' %}
+      </div>
       <div class="card my-5 mx-auto shadow-lg col-md-10">
         <div class="row g-0 p-4">
           {% if producto_unico.categoria.descuento %}
@@ -15,9 +18,26 @@
               <div class="card-body d-flex flex-column align-content-start flex-wrap my-auto">
                 <div class="mb-5">
                   <h5 class="card-title mb-0">{{ producto_unico.nombre }}</h5>
-                  <span class="">⭐⭐⭐⭐⭐</span>
+                  {% comment %} 
                   <span>4.0</span>
-                  <small><p>Reseñas 2</p></small>
+                  <small><p>Reseñas 2</p></small> {% endcomment %}
+                  <span>
+                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 0.5 %}-o{% elif producto_unico.promedioCalificacion >= 0.5 and producto_unico.promedioCalificacion < 1 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 1.5 %}-o{% elif producto_unico.promedioCalificacion >= 1.5 and producto_unico.promedioCalificacion < 2 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 2.5 %}-o{% elif producto_unico.promedioCalificacion >= 2.5 and producto_unico.promedioCalificacion < 3 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 3.5 %}-o{% elif producto_unico.promedioCalificacion >= 3.5 and producto_unico.promedioCalificacion < 4 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 4.5 %}-o{% elif producto_unico.promedioCalificacion >= 4.5 and producto_unico.promedioCalificacion < 5 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+
+                        {% comment %} <i class="fa fa-star{% if producto_unico.promedioCalificacion < 0.5 %}-o{% elif producto_unico.promedioCalificacion >= 0.5 and producto_unico.promedioCalificacion < 1 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 1.5 %}-o{% elif producto_unico.promedioCalificacion >= 1.5 and producto_unico.promedioCalificacion < 2 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 2.5 %}-o{% elif producto_unico.promedioCalificacion >= 2.5 and producto_unico.promedioCalificacion < 3 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 3.5 %}-o{% elif producto_unico.promedioCalificacion >= 3.5 and producto_unico.promedioCalificacion < 4 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 4.5 %}-o{% elif producto_unico.promedioCalificacion >= 4.5 and producto_unico.promedioCalificacion < 5 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>   {% endcomment %}
+                        {{ producto_unico.promedioCalificacion }}
+                    </span>
+                  <p class="mb-4">
+                    <small>Reseñas {{ producto_unico.contarCalificaciones }}</small>
+                  </p>
                 </div>
                 <div class="mt-4">
                   <span class="mb-1">$ {{ producto_unico.descuento_con_precio }}</span>
@@ -70,7 +90,7 @@
       </div>
 
       <div class="col-md-10 mx-auto">
-        <form action="" method="POST" class="form_valoracion">
+        <form action="{% url 'valoraciones' producto_unico.id %}" method="POST" class="form_valoracion">
           {% csrf_token %}
           <h5>Escribe tu reseña</h5>
           <div>
@@ -88,12 +108,46 @@
               <input type="radio" name="calificacion" id="calificacion2" value="1" required /><label for="calificacion2" title="1"></label>
               <input type="radio" name="calificacion" id="calificacion1" value="0.5" required /><label for="calificacion1" title="0.5" class="mitad"></label>
             </div>
-            <p class="mb-0 mt-4">Comentario:</p>
-            <textarea name="revisar" rows="4" class="form-control mt-1"></textarea>
-            <button type="submit" class="btn btn-outline-dark mt-2">Enviar</button>
+            <p class="mb-0 mt-2">Comentario:</p>
+            <textarea name="comentario" rows="3" class="form-control mt-1" placeholder="Describe cómo te ha parecido el producto..."></textarea>
+            <div class="text-center">
+              <button type="submit" class="btn btn-outline-dark mt-3 w-25">Publicar</button>
+            </div>
           </div>
-          {% include 'include/alertas.html' %}
         </form>
+
+        <h5 class="my-3">Reseñas</h5>
+
+        {% for reviews in review %}
+          <div class="card p-3 bg-light mb-2">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="mb-1 fw-bold">{{ reviews.usuario.usuario_nombre_completo }}</h6>
+                <span style="font-size: 3px;">
+                  <!--              <i class="fa fa-star{% if resena.calificacion < 0.5 %}-o{% elif resena.calificacion >= 0.5 and resena.calificacion < 1 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                    <i class="fa fa-star{% if resena.calificacion < 1.5 %}-o{% elif resena.calificacion >= 1.5 and resena.calificacion < 2 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                    <i class="fa fa-star{% if resena.calificacion < 2.5 %}-o{% elif resena.calificacion >= 2.5 and resena.calificacion < 3 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                    <i class="fa fa-star{% if resena.calificacion < 3.5 %}-o{% elif resena.calificacion >= 3.5 and resena.calificacion < 4 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                    <i class="fa fa-star{% if resena.calificacion < 4.5 %}-o{% elif resena.calificacion >= 4.5 and resena.calificacion < 5 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>              -->
+                    <i class="fa fa-star{% if resena.calificacion < 0.5 %}-o{% elif resena.calificacion >= 0.5 and resena.calificacion < 1 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                    <i class="fa fa-star{% if resena.calificacion < 1.5 %}-o{% elif resena.calificacion >= 1.5 and resena.calificacion < 2 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                    <i class="fa fa-star{% if resena.calificacion < 2.5 %}-o{% elif resena.calificacion >= 2.5 and resena.calificacion < 3 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                    <i class="fa fa-star{% if resena.calificacion < 3.5 %}-o{% elif resena.calificacion >= 3.5 and resena.calificacion < 4 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
+                    <i class="fa fa-star{% if resena.calificacion < 4.5 %}-o{% elif resena.calificacion >= 4.5 and resena.calificacion < 5 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>             
+        
+                </span>
+                <small class="mx-1">{{ reviews.calificacion }}</small>
+              </div>
+
+              <div>
+                <small class="date text-muted float-md-right">{{ reviews.creado }}</small>
+              </div>
+            </div>
+            <div class="mt-3">
+              <p>{{ reviews.comentario }}</p>
+            </div>
+          </div>
+        {% endfor %}
       </div>
     </section>
   </div>

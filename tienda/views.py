@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Producto, Categoria
+from .models import Producto, Categoria, Valoraciones
+from pedido.models import Pedido
 from carrito.models import Carrito, CarritoSesion
-from carrito.context_processors import _carrito_sesion
+from carrito.views import _carrito_sesion
 from django.contrib import messages
+from .forms import ValoracionesForm
 
 # Q es utilizado para consultas complejas
 from django.db.models import Q
@@ -52,11 +54,35 @@ def detalle_producto(request, categoria_slug, producto_slug):
         producto_unico = Producto.objects.get(
             categoria__slug=categoria_slug, slug=producto_slug
         )
+
+        # TODO Creamos esta linea de codigo para saber si el producto ya esta agregado al carrito,
+        # TODO Si esta agregado en vista producto detalle, el boton de agregar al carrito va a cambiar a ir a carrito
+        carrito = Carrito.objects.filter(
+            carritoSesion__carrito_session=_carrito_sesion(request), producto=producto_unico
+        ).exists()
     except Exception as e:
         raise e
 
+    # filtramos si el usuario ya a comprado el producto
+    if request.user.is_authenticated:
+        try:
+            pedido = Pedido.objects.filter(usuario=request.user, ordenado=True).exists()
+        except Pedido.DoesNotExist:
+            pedido = None
+    else:
+        pedido = None
+
+    review = Valoraciones.objects.filter(producto_id=producto_unico.id, estado=True)
+
     return render(
-        request, "tienda/detalle_producto.html", {"producto_unico": producto_unico}
+        request,
+        "tienda/detalle_producto.html",
+        {
+            "producto_unico": producto_unico,
+            "review": review,
+            "pedido": pedido,
+            "carrito": carrito,
+        },
     )
 
 
@@ -135,4 +161,29 @@ def filtro_rango_precios(request):
     )
 
 
-
+def valoracion(request, producto_id):
+    # almacena la ruta anterior, para ser redirijidad
+    url = request.META.get("HTTP_REFERER")
+    if request.method == "POST":
+        try:
+            # ? __id una forma de acceder al id, del ese modelo
+            valoracion = Valoraciones.objects.get(
+                usuario__id=request.user.id, producto__id=producto_id
+            )
+            # Trear el formulario
+            # pasamos una instanca si el usuario ya tiene una reseña, entonces para que pueda actualizar esa reseña
+            form = ValoracionesForm(request.POST, instance=valoracion)
+            form.save()
+            messages.success(request, "Tu reseña ha sido actualizada")
+            return redirect(url)
+        except Valoraciones.DoesNotExist:
+            form = ValoracionesForm(request.POST)
+            if form.is_valid():
+                data = Valoraciones()
+                data.calificacion = form.cleaned_data["calificacion"]
+                data.comentario = form.cleaned_data["comentario"]
+                data.producto_id = producto_id
+                data.usuario_id = request.user.id
+                data.save()
+                messages.success(request, "Tu reseña ha sido enviada")
+                return redirect(url)

@@ -3,6 +3,7 @@ from django.urls import reverse
 from decimal import Decimal
 from django.utils import timezone
 from cuenta.models import Cuenta
+from django.db.models import Count, Avg
 
 
 class Categoria(models.Model):
@@ -63,6 +64,26 @@ class Producto(models.Model):
 
         return self.precio
 
+          # TODO reseña
+    def promedioCalificacion(self):
+        revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(
+            promedio=Avg("calificacion")
+        )
+        avg = 0
+        if revisar["promedio"] is not None:
+            avg = float(revisar["promedio"])
+        return avg
+
+    # TODO contar con calificaciones ahi del producto
+    def contarCalificaciones(self):
+        revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(
+            contar=Count("id")
+        )
+        contar = 0
+        if revisar["contar"] is not None:
+            contar = int(revisar["contar"])
+        return contar
+
 
 class Valoraciones(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
@@ -74,10 +95,7 @@ class Valoraciones(models.Model):
     actualizado = models.DateField(default=timezone.now)
 
     def __str__(self):
-        return self.usuario
-    
-
-
+        return self.usuario.username
 
     # TODO Explicacion
 
