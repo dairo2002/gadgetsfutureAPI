@@ -102,8 +102,7 @@
           <h5>Escribe tu reseña</h5>
           <div>
             <p class="mb-0 mt-4">¿Cómo califica este producto?</p>
-            <div class="estrellas_calificaion">
-              <!-- class="mitad" ej: 4.5 -->
+            <div class="estrellas_calificaion">           
               <input type="radio" name="calificacion" id="calificacion10" value="5" required /><label for="calificacion10" title="5"></label>
               <input type="radio" name="calificacion" id="calificacion9" value="4.5" required /><label for="calificacion9" title="4.5" class="mitad"></label>
               <input type="radio" name="calificacion" id="calificacion8" value="4" required /><label for="calificacion8" title="4"></label>
@@ -117,9 +116,20 @@
             </div>
             <p class="mb-0 mt-2">Comentario:</p>
             <textarea name="comentario" rows="3" class="form-control mt-1" placeholder="Describe cómo te ha parecido el producto..."></textarea>
-            <div class="text-center">
+            {% if user.is_authenticated %}
+                {% if pedido %}
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-outline-dark mt-3 w-25">Publicar</button>
+                    </div>
+                {% else %}
+                    <p class="my-3">Debes comprar este producto para publicar una reseña</p>        
+                {% endif %}
+            {% else %}
+                <p class="my-3">Para publicar una reseña debe, <a class="" href="{% url 'inicio_sesion' %}">Iniciar sesión</a></p>
+            {% endif %}
+            {% comment %} <div class="text-center">
               <button type="submit" class="btn btn-outline-dark mt-3 w-25">Publicar</button>
-            </div>
+            </div> {% endcomment %}
           </div>
         </form>
 
