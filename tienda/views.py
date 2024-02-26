@@ -72,14 +72,14 @@ def detalle_producto(request, categoria_slug, producto_slug):
     else:
         pedido = None
 
-    review = Valoraciones.objects.filter(producto_id=producto_unico.id, estado=True)
+    reviews = Valoraciones.objects.filter(producto_id=producto_unico.id, estado=True)
 
     return render(
         request,
         "tienda/detalle_producto.html",
         {
             "producto_unico": producto_unico,
-            "review": review,
+            "review": reviews,
             "pedido": pedido,
             "carrito": carrito,
         },

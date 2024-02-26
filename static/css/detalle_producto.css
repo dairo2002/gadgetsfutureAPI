@@ -14,6 +14,7 @@
 }
 
 .estrellas_calificaion {
+    position: relative;
     display: inline-block;
     border: 0;
 }
@@ -22,9 +23,9 @@
     float: right;
 }
 
-.estrellas_calificaion>label::before {
+.estrellas_calificaion>label:before {
     display: inline-block;
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     font-family: FontAwesome;
     content: "\f005";
     margin: 0;
@@ -32,20 +33,18 @@
     cursor: pointer;
 }
 
-.estrellas_calificaion .mitad::before {
+.estrellas_calificaion .mitad:before {
     content: "\f089";
     position: absolute;
     padding-right: 0;
 }
 
-/** Hacer click y hacer hover */
 
 input:checked~label,
 label:hover~label {
     color: #ffb503;
 }
 
-/** */
 
 input:checked+label:hover,
 input:checked~label:hover,
@@ -53,3 +52,6 @@ input:checked~label:hover~label,
 label:hover~input:checked~label {
     color: #cc9000;
 }
+
+
+
