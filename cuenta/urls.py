@@ -14,6 +14,8 @@ urlpatterns = [
     path(
         "restablecer_password/", views.restablecer_password, name="restablecer_password"
     ),
+
     # API
-    path("api/login/v1/", views.LoginView.as_view(), name="login"),
+    path("api/login/v1/", views.loginAPIView),
+    # path("api/login/v1/", views.loginAPIView.as_view()),
 ]

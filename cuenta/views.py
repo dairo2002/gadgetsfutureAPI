@@ -21,17 +21,19 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from rest_framework.authtoken.views import ObtainAuthToken
+from django.views.decorators.csrf import csrf_protect
 
 # from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
-
 from .serializers import CuentaSerializer
+
+# from .serializers import LoginSerializer
 
 
 # Instalar: pip install requests permite hacer solicitudes HTTP, como GET,POST..
 import requests
-
 import datetime
 
 
@@ -216,58 +218,36 @@ def restablecer_password(request):
         return render(request, "cuenta/restablecer_password.html")
 
 
-# @csrf_exempt
-class LoginView(APIView):
-    # permisos_class = [AllowAny]
 
-    def post(self, request):
+
+# ? APIS
+
+
+@api_view(["POST"])
+def loginAPIView(request):
+    if request.method == "POST":
         correo_electronico = request.data.get("correo_electronico")
         password = request.data.get("password")
 
-        usuarios = auth.authenticate(
+        usuario = auth.authenticate(
             correo_electronico=correo_electronico, password=password
         )
 
-        if usuarios is not None:
-            auth.login(request, usuarios)
-            messages.success(
-                request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
-            )
+        if usuario is not None:
+            token, created = Token.objects.get_or_create(user=usuario)
+
             return Response(
-                {"message": "Inicio de sesión exitoso"}, status=status.HTTP_200_OK
+                {
+                    "success": True,
+                    "message": f"Bienvenido {usuario.nombre} {usuario.apellido}",
+                    "token": token.key,
+                },
+                status=status.HTTP_200_OK,
             )
+            # return Response({'success': True, 'message': 'Bienvenido', 'token': token.key}, status=status.HTTP_200_OK)
         else:
-            messages.error(request, "Las credenciales son incorrectas")
-            # HTTP_400_BAD_REQUEST
             return Response(
-                {"message": "Las credenciales son incorrectas"},
+                {"error": False, "message": "Las credenciales son incorrectas"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
-
-"""
-    # ?  segunda opcion
-    def post(self, request):
-        correo_electronico = request.data.get("correo_electronico")
-        password = request.data.get("password")
-        usuarios = auth.authenticate(
-            correo_electronico=correo_electronico, password=password
-        )
-        if usuarios is not None:
-            # Genera un token de autenticación para el usuario o lo obtiene si ya existe
-            token, _ = Token.objects.get_or_create(user=usuarios)
-            # Serializa los datos del usuario
-            serializer = CuentaSerializer(usuarios)
-            # Devuelve una respuesta con el token de autenticación y los datos del usuario
-            return Response(
-                {"token": Token.key, "usuario": serializer.data},
-                status=status.HTTP_200_OK,
-            )
-        else:
-            messages.error(request, "Las credenciales son incorrectas")
-            # HTTP_400_BAD_REQUEST
-            return Response(
-                {"error": "Credenciales inválidas"}, status=status.HTTP_401_UNAUTHORIZED
-            )
-
-"""
