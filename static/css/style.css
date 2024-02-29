@@ -2,33 +2,58 @@
 
 body {
     font-family: 'Quicksand';
+    /* color: rgb(121, 121, 121); */
 }
+
+
 
 .bg_header {
-    /* background-color: #192655; */
-    /* background-color: #1B1A55 ; */
-    background-color: #022C43;
+    /* background-color: #006eff; */
+    background-color: #0460D9;
 }
 
-.bg_footer,
-.bg_menu,
+.bg-iconos {
+    /* color: #7e7d7d; */
+    color: #ffffff;
+}
+
+.bg-nav,
+.bg_footer {
+    /* background-color: #0460D9; */
+    background-color: #006eff;
+}
+
+
+.bg_menu {
+     background-color: #7e7d7d; 
+    
+}
 .btn_buscador {
-    background-color: #115173;
+    background-color: #006eff;
+    border: 2px solid #ffffff;
 }
 
 .btn_buscador:hover {
-    background-color: #115173;
+    background-color: #006eff;
+    border: 2px solid #ffffff;
 }
 
-.btn_carrito {
-    background-color: #115173;
+.btn_carrito {    
+    color: #ffffff;
     border-radius: 50%;
+    border: 2px solid #ffffff;
     width: 50px;
     height: 50px;
 }
 
 .btn_carrito:hover {
-    background-color: #022C43;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+}
+
+.btn_carrito:active {
+    border: 1px solid #ffffff;
+    color: #ffffff;
 }
 
 .campoBuscar {
@@ -59,7 +84,7 @@ body {
 .form_pedido input:focus,
 .form_pedido select:focus,
 .form_pago input:focus,
-.form_filtro_precio input:focus{
+.form_filtro_precio input:focus {
     box-shadow: none;
     border-color: gray;
 }

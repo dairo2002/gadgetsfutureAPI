@@ -19,17 +19,16 @@
                 <div class="mb-5">
                   <h5 class="card-title mb-0">{{ producto_unico.nombre }}</h5>
                   <span>
-                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 0.5 %}-o{% elif producto_unico.promedioCalificacion >= 0.5 and producto_unico.promedioCalificacion < 1 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
-                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 1.5 %}-o{% elif producto_unico.promedioCalificacion >= 1.5 and producto_unico.promedioCalificacion < 2 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
-                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 2.5 %}-o{% elif producto_unico.promedioCalificacion >= 2.5 and producto_unico.promedioCalificacion < 3 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
-                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 3.5 %}-o{% elif producto_unico.promedioCalificacion >= 3.5 and producto_unico.promedioCalificacion < 4 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
-                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 4.5 %}-o{% elif producto_unico.promedioCalificacion >= 4.5 and producto_unico.promedioCalificacion < 5 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
-
-                        {% comment %} <i class="fa fa-star{% if producto_unico.promedioCalificacion < 0.5 %}-o{% elif producto_unico.promedioCalificacion >= 0.5 and producto_unico.promedioCalificacion < 1 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
-                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 1.5 %}-o{% elif producto_unico.promedioCalificacion >= 1.5 and producto_unico.promedioCalificacion < 2 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
-                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 2.5 %}-o{% elif producto_unico.promedioCalificacion >= 2.5 and producto_unico.promedioCalificacion < 3 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
-                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 3.5 %}-o{% elif producto_unico.promedioCalificacion >= 3.5 and producto_unico.promedioCalificacion < 4 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>
-                        <i class="fa fa-star{% if producto_unico.promedioCalificacion < 4.5 %}-o{% elif producto_unico.promedioCalificacion >= 4.5 and producto_unico.promedioCalificacion < 5 %}-half-o{% endif %}" aria-hidden="true" style="color: #FFD43B; font-size: 1.4rem;"></i>   {% endcomment %}
+                    <i class="fa fa-star {% if producto_unico.promedioCalificacion == 0.5 %}fa-regular fa-star-half-stroke{% elif producto_unico.promedioCalificacion < 1 %}fa-regular fa-star{% endif %}" style="color: #FFD43B; font-size: 1.4rem;" aria-hidden="true"></i>
+                    <i class="fa fa-star {% if producto_unico.promedioCalificacion == 1.5 %}fa-regular fa-star-half-stroke{% elif producto_unico.promedioCalificacion < 2 %}fa-regular fa-star{% endif %}" style="color: #FFD43B; font-size: 1.4rem;" aria-hidden="true"></i>
+                    <i class="fa fa-star {% if producto_unico.promedioCalificacion == 2.5 %}fa-regular fa-star-half-stroke{% elif producto_unico.promedioCalificacion < 3 %}fa-regular fa-star{% endif %}" style="color: #FFD43B; font-size: 1.4rem;" aria-hidden="true"></i>
+                    <i class="fa fa-star {% if producto_unico.promedioCalificacion == 3.5 %}fa-regular fa-star-half-stroke{% elif producto_unico.promedioCalificacion < 4 %}fa-regular fa-star{% endif %}" style="color: #FFD43B; font-size: 1.4rem;" aria-hidden="true"></i>
+                    <i class="fa fa-star {% if producto_unico.promedioCalificacion == 4.5 %}fa-regular fa-star-half-stroke{% elif producto_unico.promedioCalificacion < 5 %}fa-regular fa-star{% endif %}" style="color: #FFD43B; font-size: 1.4rem;" aria-hidden="true"></i>          
+                    {% comment %} <i class="fa fa-star {% if producto_unico.promedioCalificacion == 0.5 %}fa-regular fa-star-half-stroke{% elif producto_unico.promedioCalificacion < 1 %}fa-regular fa-star{% endif %}" style="color: #FFD43B; font-size: 1.4rem;" aria-hidden="true"></i>
+                    <i class="fa fa-star {% if producto_unico.promedioCalificacion == 1.5 %}fa-regular fa-star-half-stroke{% elif producto_unico.promedioCalificacion < 2 %}fa-regular fa-star{% endif %}" style="color: #FFD43B; font-size: 1.4rem;" aria-hidden="true"></i>
+                    <i class="fa fa-star {% if producto_unico.promedioCalificacion == 2.5 %}fa-regular fa-star-half-stroke{% elif producto_unico.promedioCalificacion < 3 %}fa-regular fa-star{% endif %}" style="color: #FFD43B; font-size: 1.4rem;" aria-hidden="true"></i>
+                    <i class="fa fa-star {% if producto_unico.promedioCalificacion == 3.5 %}fa-regular fa-star-half-stroke{% elif producto_unico.promedioCalificacion < 4 %}fa-regular fa-star{% endif %}" style="color: #FFD43B; font-size: 1.4rem;" aria-hidden="true"></i>
+                    <i class="fa fa-star {% if producto_unico.promedioCalificacion == 4.5 %}fa-regular fa-star-half-stroke{% elif producto_unico.promedioCalificacion < 5 %}fa-regular fa-star{% endif %}" style="color: #FFD43B; font-size: 1.4rem;" aria-hidden="true"></i>           {% endcomment %}
                         {{ producto_unico.promedioCalificacion }}
                     </span>
                   <p class="mb-4">
@@ -43,7 +42,7 @@
                   </del>
                   <br />
                   {% if producto_unico.stock <= 0 %}
-                    <h4 class="text-danger fw-semibold mt-2">Agotado</h4>
+                  <h4><span class="badge text-bg-danger mt-3 mx-auto">Agotado</span></h4>
                   {% else %}
                     <a href="{% url 'add_carrito' producto_unico.id %}" class="btn btn-outline-secondary mt-2">Agregar al carrito</a>
                   {% endif %}
@@ -81,7 +80,7 @@
                 <div class="mt-4">
                   <p class="text-muted mb-1">$ {{ producto_unico.precio }}</p>
                   {% if producto_unico.stock <= 0 %}
-                    <h4 class="text-danger fw-semibold mt-2">Agotado</h4>
+                  <h4><span class="badge text-bg-danger mt-3 mx-auto">Agotado</span></h4>
                   {% else %}
                     <a href="{% url 'add_carrito' producto_unico.id %}" class="btn btn-outline-secondary mt-2">Agregar al carrito</a>
                   {% endif %}
@@ -119,7 +118,7 @@
             {% if user.is_authenticated %}
                 {% if pedido %}
                     <div class="text-center">
-                        <button type="submit" class="btn btn-outline-dark mt-3 w-25">Publicar</button>
+                        <button type="submit" class="btn btn-outline-secondary mt-3 w-25">Publicar</button>
                     </div>
                 {% else %}
                     <p class="my-3">Debes comprar este producto para publicar una reseña</p>        
@@ -127,9 +126,6 @@
             {% else %}
                 <p class="my-3">Para publicar una reseña debe, <a class="" href="{% url 'inicio_sesion' %}">Iniciar sesión</a></p>
             {% endif %}
-            {% comment %} <div class="text-center">
-              <button type="submit" class="btn btn-outline-dark mt-3 w-25">Publicar</button>
-            </div> {% endcomment %}
           </div>
         </form>
 

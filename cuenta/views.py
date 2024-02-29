@@ -218,8 +218,6 @@ def restablecer_password(request):
         return render(request, "cuenta/restablecer_password.html")
 
 
-
-
 # ? APIS
 
 
@@ -236,18 +234,54 @@ def loginAPIView(request):
         if usuario is not None:
             token, created = Token.objects.get_or_create(user=usuario)
 
-            return Response(
-                {
-                    "success": True,
-                    "message": f"Bienvenido {usuario.nombre} {usuario.apellido}",
-                    "token": token.key,
-                },
-                status=status.HTTP_200_OK,
-            )
-            # return Response({'success': True, 'message': 'Bienvenido', 'token': token.key}, status=status.HTTP_200_OK)
+            if created:
+                return Response(
+                    {
+                        "token": token.key,
+                        "success": True,
+                        "message": f"Bienvenido {usuario.nombre} {usuario.apellido}",
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
+            else:
+                # Elmina las sesiones cuando ingresa un navegador, Le creamo un nuevo token cuando el usuario vaya a iniciar sesion
+                token.delete()
+                token = Token.objects.create(user=usuario)
+                return Response(
+                    {
+                        "token": token.key,
+                        "success": True,
+                        "message": f"Bienvenido {usuario.nombre} {usuario.apellido}",
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
         else:
             return Response(
                 {"error": False, "message": "Las credenciales son incorrectas"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
+
+@api_view(["GET"])
+def logoutAPIView(request):
+    try:
+        token = request.GET.get("token")
+        print(token)
+        token = Token.objects.filter(key=token).first()
+
+        if token:
+            # user= token.user
+            token.user.delete()
+            return Response(
+                {"success": True, "message": "Has cerrado sesión exitosamente."}
+            )
+
+        return Response(
+            {"error": False, "message": "No se ha encontrado un usuario con este token"}
+        )
+    except:
+        return Response(
+            {"error": False, "message": "No se ha encontrado el token en la petición"}
+        )

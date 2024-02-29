@@ -10,7 +10,7 @@ class Categoria(models.Model):
     nombre = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
     descuento = models.DecimalField(
-        max_digits=12, decimal_places=0, null=True, blank=True
+        max_digits=12, decimal_places=2, null=True, blank=True
     )
     fecha_inicio = models.DateTimeField(null=True, blank=True)
     fecha_fin = models.DateTimeField(null=True, blank=True)
@@ -27,7 +27,7 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
     descripcion = models.TextField(max_length=500, blank=True)
-    precio = models.DecimalField(max_digits=12, decimal_places=3)
+    precio = models.DecimalField(max_digits=12, decimal_places=2)
     stock = models.IntegerField()
     imagen = models.ImageField(upload_to="productos/")
     disponible = models.BooleanField(default=True)
@@ -50,10 +50,31 @@ class Producto(models.Model):
             fecha_actual = timezone.now()
             if self.categoria.fecha_inicio <= fecha_actual <= self.categoria.fecha_fin:
                 # Convierte el descuento de procentaje a decimal
-                descuento_decimal = self.categoria.descuento / 100
+                descuento_decimal = 1 - (self.categoria.descuento / 100)
                 # Calcula el precio con descuento
-                precio_descuento = self.precio - (self.precio * descuento_decimal)
-                return precio_descuento
+                # precio_descuento = self.precio - (self.precio * descuento_decimal)
+                precio_descuento = self.precio * descuento_decimal
+                # redondeo a dos decimales
+                precio_descuento = round(precio_descuento, 2)
+
+                # precio_descuento_texto = precio_descuento
+                precio_descuento_texto = str(precio_descuento)
+                precio_descuento_arreglo = precio_descuento_texto.split(".")
+                precio_descuento_texto = precio_descuento_arreglo[0][::-1]
+                indice = 1
+                precio_descuento_arreglo[0] = ""
+                for element in range(0, len(precio_descuento_texto)):
+                    precio_descuento_arreglo[0] = (
+                        precio_descuento_arreglo[0] + precio_descuento_texto[element]
+                    )
+
+                    if indice % 3 == 0 and len(precio_descuento_texto) != indice:
+                        precio_descuento_arreglo[0] = precio_descuento_arreglo[0] + "."
+
+                    indice += 1
+                precio_descuento_texto = precio_descuento_arreglo[0][::-1]
+                # precio_descuento=Decimal(precio_descuento_texto)
+                return precio_descuento_texto
             else:
                 # Si la fecha actual está fuera del rango de fechas de descuento, limpiar los campos relacionados con el descuento
                 self.categoria.descuento = None
@@ -64,7 +85,8 @@ class Producto(models.Model):
 
         return self.precio
 
-          # TODO reseña
+        # TODO reseña
+
     def promedioCalificacion(self):
         revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(
             promedio=Avg("calificacion")
