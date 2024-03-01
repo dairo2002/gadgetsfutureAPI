@@ -180,16 +180,6 @@ def recuperar_password(request):
             return redirect("recuperar_password")
     return render(request, "cuenta/recuperar_password.html")
 
-@api_view(['POST'])
-def recover_password(request):
-    if request.method == "POST":
-        correo_electronico = request.data.get("correo_electronico")
-
-        existe_email = Cuenta.objects.filter(correo_electronico=correo_electronico).exists()
-        if existe_email:
-            usuario = Cuenta.objects.get(correo_electronico__exact=correo_electronico)
-
-
 
 # Datos obtenidos para ruta del email
 def enlace_cambiar_pwd(request, uidb64, token):
@@ -332,4 +322,42 @@ def logoutAPIView(request):
             {"error": False, "message": "No se ha encontrado el token en la petición"}
         )
 
+
+@api_view(['POST'])
+def recover_password(request):
+    if request.method == "POST":
+        correo_electronico = request.data.get("correo_electronico")
+
+        existe_email = Cuenta.objects.filter(correo_electronico=correo_electronico).exists()
+        if existe_email:
+            usuario = Cuenta.objects.get(correo_electronico__exact=correo_electronico)
+
+            current_site = get_current_site(request)
+            # Configurar el asunto del correo electrónico
+            mail_subject = "Recuperar contraseña"
+            # Renderizar el mensaje del correo electrónico
+            mensaje = render_to_string(
+                "cuenta/mensaje_cambiar_pwd.html",
+                {
+                    "usuario": usuario,
+                    "dominio": current_site.domain,
+                    "uid": urlsafe_base64_encode(force_bytes(usuario.pk)),
+                    "token": default_token_generator.make_token(usuario),
+                },
+            )
+
+            # Configurar y enviar el correo electrónico
+            to_email = correo_electronico
+            send_email = EmailMessage(mail_subject, mensaje, to=[to_email])
+            send_email.send()
+
+            return Response(
+                {"message": "Se ha enviado un correo electrónico de restablecimiento de contraseña a su dirección de correo electrónico"},
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {"error": "La cuenta no existe!"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
