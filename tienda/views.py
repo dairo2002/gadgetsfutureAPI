@@ -12,8 +12,11 @@ from django.db.models import Q
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 # API
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
+from .serializers import ProductoSerializer
+
 
 # Tienda de productos que pertenecen a una categoria
 def tienda(request, categoria_slug=None):
@@ -50,6 +53,11 @@ def tienda(request, categoria_slug=None):
     )
 
 
+@api_view(["GET"])
+def storeAPIView(request):
+    pass
+
+
 # Tienda un producto unico hacia su detalle
 def detalle_producto(request, categoria_slug, producto_slug):
     try:
@@ -61,7 +69,8 @@ def detalle_producto(request, categoria_slug, producto_slug):
         # TODO Creamos esta linea de codigo para saber si el producto ya esta agregado al carrito,
         # TODO Si esta agregado en vista producto detalle, el boton de agregar al carrito va a cambiar a ir a carrito
         carrito = Carrito.objects.filter(
-            carritoSesion__carrito_session=_carrito_sesion(request), producto=producto_unico
+            carritoSesion__carrito_session=_carrito_sesion(request),
+            producto=producto_unico,
         ).exists()
     except Exception as e:
         raise e
@@ -108,10 +117,6 @@ def filtro_buscar_producto(request):
             # Contador de productos encontrados
             contar_productos = palabra_busqueda.count()
             if contar_productos == 0:
-                # error_busqueda = (
-                #     f"No se encontraron productos que coincidan con la palabra: {txtBusqueda}"
-                # )
-
                 return render(
                     request,
                     "tienda/tienda.html",
@@ -129,6 +134,29 @@ def filtro_buscar_producto(request):
             "txtBuscar": txtBusqueda,
         },
     )
+
+
+@api_view(["POST"])
+def searchProductAPIView(request):
+    palabra_clave = None
+    contar_productos = 0
+
+    palabra_clave = request.GET.get("txtBusqueda")
+
+    if palabra_clave:
+        productos_encontrados = Producto.objects.filter(
+            Q(nombre__icontains=palabra_clave) | Q(descripcion__icontains=palabra_clave)
+        )
+
+        contar_productos = productos_encontrados.count()
+        if contar_productos == 0:
+            return Response({'error': 'No se encontraron productos que coincidan con la búsqueda'}, status=status.HTTP_404_NOT_FOUND)
+
+
+    # Serializar todos los productos encontrados, en caso de que no funcion crear un serializer para search product
+    serializer = ProductoSerializer(productos_encontrados, many=True)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 def filtro_rango_precios(request):
@@ -194,6 +222,18 @@ def valoracion(request, producto_id):
 
 # ? APIS
 
+
 @api_view(["GET"])
-def storeAPIView(request):
-    pass
+def detail_productAPIView(request, category_slug, product_slug):
+    try:
+        # Intenta obtener un único producto filtrando por el slug de la categoría y el slug del producto
+        categoria = get_object_or_404(Categoria, slug=category_slug)
+        producto = get_object_or_404(Producto, categoria=categoria, slug=product_slug)
+
+        serializer = ProductoSerializer(producto)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Producto.DoesNotExist:
+        return Response(
+            {"error": "Lista de productos no encontrado"},
+            status=status.HTTP_404_NOT_FOUND,
+        )

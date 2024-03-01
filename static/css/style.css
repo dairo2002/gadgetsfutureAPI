@@ -1,101 +1,102 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500;700&display=swap');
 
-body {
-    font-family: 'Quicksand';
-    /* color: rgb(121, 121, 121); */
-}
-
-
-
-.bg_header {
-    /* background-color: #006eff; */
-    background-color: #0460D9;
-}
-
-.bg-iconos {
-    /* color: #7e7d7d; */
-    color: #ffffff;
-}
-
-.bg-nav,
-.bg_footer {
-    /* background-color: #0460D9; */
-    background-color: #006eff;
-}
+    body {
+        font-family: 'Quicksand';
+        /* color: rgb(121, 121, 121); */
+    }
 
 
-.bg_menu {
-     background-color: #7e7d7d; 
-    
-}
-.btn_buscador {
-    background-color: #006eff;
-    border: 2px solid #ffffff;
-}
 
-.btn_buscador:hover {
-    background-color: #006eff;
-    border: 2px solid #ffffff;
-}
+    .bg_header {
+        /* background-color: #006eff; */
+        background-color: #0460D9;
+    }
 
-.btn_carrito {    
-    color: #ffffff;
-    border-radius: 50%;
-    border: 2px solid #ffffff;
-    width: 50px;
-    height: 50px;
-}
+    .bg-iconos {
+        /* color: #7e7d7d; */
+        color: #ffffff;
+    }
 
-.btn_carrito:hover {
-    border: 2px solid #ffffff;
-    color: #ffffff;
-}
-
-.btn_carrito:active {
-    border: 1px solid #ffffff;
-    color: #ffffff;
-}
-
-.campoBuscar {
-    width: 400px;
-}
-
-.tarjeta_productos {
-    max-width: 350px;
-    max-height: 420px;
-}
+    .bg-nav,
+    .bg_footer {
+        /* background-color: #0460D9; */
+        background-color: #006eff;
+    }
 
 
-.tarjeta_productos img {
-    height: 250px;
-    transition: transform 0.3s ease;
-    overflow: hidden;
-}
+    .bg_menu {
+        background-color: #7e7d7d;
 
-.tarjeta_productos img:hover {
-    transform: scale(1.1);
-}
+    }
+
+    .btn_buscador {
+        background-color: #006eff;
+        border: 2px solid #ffffff;
+    }
+
+    .btn_buscador:hover {
+        background-color: #006eff;
+        border: 2px solid #ffffff;
+    }
+
+    .btn_carrito {
+        color: #ffffff;
+        border-radius: 50%;
+        border: 2px solid #ffffff;
+        width: 50px;
+        height: 50px;
+    }
+
+    .btn_carrito:hover {
+        border: 2px solid #ffffff;
+        color: #ffffff;
+    }
+
+    .btn_carrito:active {
+        border: 1px solid #ffffff;
+        color: #ffffff;
+    }
+
+    .campoBuscar {
+        width: 400px;
+    }
+
+    .tarjeta_productos {
+        max-width: 350px;
+        max-height: 420px;
+    }
 
 
-/** Campo de busqueda, Formulario de registro, Formulario de inicio sesión, Formulario pedido ***/
-.input-group input:focus,
-.form_registrarse input:focus,
-.form_inicio_sesion input:focus,
-.form_pedido input:focus,
-.form_pedido select:focus,
-.form_pago input:focus,
-.form_filtro_precio input:focus {
-    box-shadow: none;
-    border-color: gray;
-}
+    .tarjeta_productos img {
+        height: 250px;
+        transition: transform 0.3s ease;
+        overflow: hidden;
+    }
+
+    .tarjeta_productos img:hover {
+        transform: scale(1.1);
+    }
 
 
-.offcanvas-footer {
-    background-color: #115173;
-}
+    /** Campo de busqueda, Formulario de registro, Formulario de inicio sesión, Formulario pedido ***/
+    .input-group input:focus,
+    .form_registrarse input:focus,
+    .form_inicio_sesion input:focus,
+    .form_pedido input:focus,
+    .form_pedido select:focus,
+    .form_pago input:focus,
+    .form_filtro_precio input:focus {
+        box-shadow: none;
+        border-color: gray;
+    }
 
-#efectivo,
-#nequi {
-    cursor: pointer;
-    font-size: 18px;
-}
+
+    .offcanvas-footer {
+        background-color: #115173;
+    }
+
+    #efectivo,
+    #nequi {
+        cursor: pointer;
+        font-size: 18px;
+    }

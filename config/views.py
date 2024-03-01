@@ -4,7 +4,7 @@ from tienda.models import Producto
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from .serializers import ProductoSerializer
+from tienda.serializers import ProductoSerializer
 
 def index(request):
     productos = Producto.objects.all().filter(disponible=True)
@@ -12,7 +12,7 @@ def index(request):
 
 
 @api_view(["GET"])
-def productosAPIView(request):
+def listProductAPIView(request):
     queryset = Producto.objects.all().filter(disponible=True)
     serializer = ProductoSerializer(queryset, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)

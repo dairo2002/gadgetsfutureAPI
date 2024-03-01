@@ -34,5 +34,5 @@ urlpatterns = [
     
     # API
     #  path("", views.productosAPIView),
-    path("api/productos/v1/", views.productosAPIView),
+    path("api/list_product/v1/", views.listProductAPIView),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
