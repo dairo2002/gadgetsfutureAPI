@@ -16,9 +16,10 @@ urlpatterns = [
     path("filtro_precio/", views.filtro_rango_precios, name="filtro_precios"),
     path("valoracion/<int:producto_id>/", views.valoracion, name="valoraciones"),
     # API
-    path("api/store/v1/", views.storeAPIView),
+    path("api/store/v1/", views.storeAPIView), # NO FUNCIONAL
     path(
         "api/detail_product/v1/<slug:category_slug>/<slug:product_slug>/",
         views.detail_productAPIView,
     ),
+    path("api/search_product/v1/", views.searchProductAPIView), 
 ]

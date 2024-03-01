@@ -222,6 +222,7 @@ def restablecer_password(request):
 
 # ? APIS
 
+# Validar que en api que las dos contraseñas concidan, sino hacer la validacion en movil
 @api_view(["POST"])
 def signupAPIView(request):
         serializer = CuentaSerializer(data=request.data)

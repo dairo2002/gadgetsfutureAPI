@@ -136,29 +136,6 @@ def filtro_buscar_producto(request):
     )
 
 
-@api_view(["POST"])
-def searchProductAPIView(request):
-    palabra_clave = None
-    contar_productos = 0
-
-    palabra_clave = request.GET.get("txtBusqueda")
-
-    if palabra_clave:
-        productos_encontrados = Producto.objects.filter(
-            Q(nombre__icontains=palabra_clave) | Q(descripcion__icontains=palabra_clave)
-        )
-
-        contar_productos = productos_encontrados.count()
-        if contar_productos == 0:
-            return Response({'error': 'No se encontraron productos que coincidan con la búsqueda'}, status=status.HTTP_404_NOT_FOUND)
-
-
-    # Serializar todos los productos encontrados, en caso de que no funcion crear un serializer para search product
-    serializer = ProductoSerializer(productos_encontrados, many=True)
-
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 def filtro_rango_precios(request):
     try:
         precio_minimo = float(request.POST.get("min_precio"))
@@ -237,3 +214,26 @@ def detail_productAPIView(request, category_slug, product_slug):
             {"error": "Lista de productos no encontrado"},
             status=status.HTTP_404_NOT_FOUND,
         )
+
+
+@api_view(["POST"])
+def searchProductAPIView(request):
+    palabra_clave = None
+    contar_productos = 0
+
+    palabra_clave = request.GET.get("txtBusqueda")
+
+    if palabra_clave:
+        productos_encontrados = Producto.objects.filter(
+            Q(nombre__icontains=palabra_clave) | Q(descripcion__icontains=palabra_clave)
+        )
+
+        contar_productos = productos_encontrados.count()
+        if contar_productos == 0:
+            return Response({'error': 'No se encontraron productos que coincidan con la búsqueda'}, status=status.HTTP_404_NOT_FOUND)
+
+
+    # Serializar todos los productos encontrados, en caso de que no funcion crear un serializer para search product
+    serializer = ProductoSerializer(productos_encontrados, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
