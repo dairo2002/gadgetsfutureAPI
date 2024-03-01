@@ -8,6 +8,7 @@ def enlaces_categorias(request):
     return dict(enlace_categoria=enlace)
 
 
+
 # def rango_precios(request):
 #     rango_precio = [
 #         [0, 10000],

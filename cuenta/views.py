@@ -19,9 +19,11 @@ from carrito.models import Carrito, CarritoSesion
 # API
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.views.decorators.csrf import csrf_protect
 
@@ -178,6 +180,16 @@ def recuperar_password(request):
             return redirect("recuperar_password")
     return render(request, "cuenta/recuperar_password.html")
 
+@api_view(['POST'])
+def recover_password(request):
+    if request.method == "POST":
+        correo_electronico = request.data.get("correo_electronico")
+
+        existe_email = Cuenta.objects.filter(correo_electronico=correo_electronico).exists()
+        if existe_email:
+            usuario = Cuenta.objects.get(correo_electronico__exact=correo_electronico)
+
+
 
 # Datos obtenidos para ruta del email
 def enlace_cambiar_pwd(request, uidb64, token):
@@ -219,6 +231,39 @@ def restablecer_password(request):
 
 
 # ? APIS
+
+@api_view(["POST"])
+def signupAPIView(request):
+        serializer = CuentaSerializer(data=request.data)
+        if serializer.is_valid():
+            nombre = serializer.validated_data.get("nombre")
+            apellido = serializer.validated_data.get("apellido")
+            correo_electronico = serializer.validated_data.get("correo_electronico")
+            telefono = serializer.validated_data.get("telefono")
+            password = serializer.validated_data.get("password")
+            usuario = correo_electronico.split("@")[0]
+            # Utiliza tu método personalizado create_user para crear el usuario
+            usuario_creado = Cuenta.objects.create_user(
+                nombre=nombre,
+                apellido=apellido,
+                username=usuario,
+                correo_electronico=correo_electronico,
+                password=password,
+            )
+            usuario_creado.telefono = telefono
+            usuario_creado.save()
+            # Genera un token para el usuario registrado
+            token, created = Token.objects.get_or_create(user=usuario_creado)
+            if created:
+                return Response(
+                    {
+                        "token": token.key,
+                        "success": True,
+                        "message": f"Bienvenido {usuario_creado.nombre} {usuario_creado.apellido}",
+                    },
+                    status=status.HTTP_201_CREATED,
+                )        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -264,7 +309,8 @@ def loginAPIView(request):
             )
 
 
-@api_view(["GET"])
+@api_view(["POST"])
+# @permission_classes([IsAuthenticated])
 def logoutAPIView(request):
     try:
         token = request.GET.get("token")
@@ -273,7 +319,7 @@ def logoutAPIView(request):
 
         if token:
             # user= token.user
-            token.user.delete()
+            token.user.auth_token.delete()
             return Response(
                 {"success": True, "message": "Has cerrado sesión exitosamente."}
             )
@@ -285,3 +331,5 @@ def logoutAPIView(request):
         return Response(
             {"error": False, "message": "No se ha encontrado el token en la petición"}
         )
+
+

@@ -11,6 +11,9 @@ from django.db.models import Q
 
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
+# API
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 
 # Tienda de productos que pertenecen a una categoria
 def tienda(request, categoria_slug=None):
@@ -187,3 +190,10 @@ def valoracion(request, producto_id):
                 data.save()
                 messages.success(request, "Tu reseña ha sido enviada")
                 return redirect(url)
+
+
+# ? APIS
+
+@api_view(["GET"])
+def storeAPIView(request):
+    pass

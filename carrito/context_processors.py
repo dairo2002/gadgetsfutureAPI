@@ -15,7 +15,9 @@ def mostrar_carrito(request, total=0, cantidad=0, carrito=None):
             carrito = Carrito.objects.filter(carritoSesion=carrito_sesion, activo=True)
         for articulo in carrito:
             if articulo.producto.descuento_con_precio():
-                total += articulo.producto.descuento_con_precio() * articulo.cantidad
+                descuento = float(articulo.producto.descuento_con_precio())
+                total += descuento * articulo.cantidad              
+                # total += articulo.producto.descuento_con_precio() * articulo.cantidad              
                 cantidad += articulo.cantidad
             else:
                 total += articulo.producto.precio * articulo.cantidad

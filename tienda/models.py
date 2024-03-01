@@ -57,7 +57,7 @@ class Producto(models.Model):
                 # redondeo a dos decimales
                 precio_descuento = round(precio_descuento, 2)
 
-                # precio_descuento_texto = precio_descuento
+            
                 precio_descuento_texto = str(precio_descuento)
                 precio_descuento_arreglo = precio_descuento_texto.split(".")
                 precio_descuento_texto = precio_descuento_arreglo[0][::-1]
@@ -86,6 +86,8 @@ class Producto(models.Model):
         return self.precio
 
         # TODO reseña
+
+
 
     def promedioCalificacion(self):
         revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(

@@ -16,7 +16,9 @@ urlpatterns = [
     ),
 
     # API
+    path("api/signup/v1/", views.signupAPIView),
     path("api/login/v1/", views.loginAPIView),
     path("api/logout/v1/", views.logoutAPIView),
+    path("api/recover_password/v1/", views.recover_password),
     
 ]
