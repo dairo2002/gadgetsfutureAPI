@@ -1,9 +1,78 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load l10n %}
 {% block content %}
-  <!-- Carousel -->
   <div class="mt-1 w-25 ms-auto">
     {% include 'include/alertas.html' %}
+  </div>
+
+  <div id="carouselExampleAutoplaying" class="carousel slide p-0" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+      <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="1" aria-label="Slide 2"></button>
+      <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <div class="container p-5">
+          <div class="row px-5">
+            <div class="mx-auto col-md-8 col-lg-7 order-lg-last">
+              <img class="img-fluid" src="{% static 'img/carousel-1.png' %}" alt="" />
+            </div>
+            <div class="col-lg-5 mb-0 d-flex align-items-center">
+              <div class="text-align-left align-self-center">
+                <h2 class="text-primary"><b>Gadgets Future</b></h2>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum harum esse numquam quidem provident temporibus ratione blanditiis,</p>
+                <a class="btn btn-outline-secondary" href="">Agregar al carrito</a>
+                <a class="btn btn-outline-secondary" href="">Detalle producto</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="container p-5">
+          <div class="row px-5">
+            <div class="mx-auto col-md-8 col-lg-7 order-lg-last">
+              <img class="img-fluid" src="{% static 'img/carousel-2.png' %}" alt="" />
+            </div>
+            <div class="col-lg-5 mb-0 d-flex align-items-center">
+              <div class="text-align-left align-self-center">
+                <h2 class="text-primary"><b>Gadgets Future</b></h2>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum harum esse numquam quidem provident temporibus ratione blanditiis,</p>
+                <a class="btn btn-outline-secondary" href="">Agregar al carrito</a>
+                <a class="btn btn-outline-secondary" href="">Detalle producto</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="container p-5">
+          <div class="row px-5">
+            <div class="mx-auto col-md-8 col-lg-7 order-lg-last">
+              <img class="img-fluid" src="{% static 'img/carousel-3.png' %}" alt="" />
+            </div>
+            <div class="col-lg-5 mb-0 d-flex align-items-center">
+              <div class="text-align-left align-self-center">
+                <h2 class="text-primary"><b>Gadgets Future</b></h2>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum harum esse numquam quidem provident temporibus ratione blanditiis,</p>
+                <a class="btn btn-outline-secondary" href="">Agregar al carrito</a>
+                <a class="btn btn-outline-secondary" href="">Detalle producto</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+      <span class="text-primary" aria-hidden="true"><i class="fa-solid fa-chevron-left fa-2xl" style="font-size: 40px;"></i></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+      <span class="text-primary" aria-hidden="true"><span aria-hidden="true"><i class="fa-solid fa-chevron-right fa-2xl" style="font-size: 40px;"></i></span></span>
+      <span class="visually-hidden">Next</span>
+    </button>
   </div>
 
   <div id="carouselExampleAutoplaying" class="carousel slide p-0" data-bs-ride="carousel">
@@ -67,7 +136,8 @@
                 <div class="card-body">
                   <a href="{{ productos.get_url_producto }}"><img src="{{ productos.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" /></a>
                   <h6 class="fw-semibold">{{ productos.nombre }}</h6>
-                  <span class="mb-2">$ {{ productos.precio }}</span>
+                  {% comment %} <span class="mb-2">$ {{ productos.precio }}</span> {% endcomment %}
+                  <span class="mb-2">{{ productos.precio_formato }}</span>
                   {% if productos.stock <= 0 %}
                     <h5><span class="badge text-bg-danger mt-4 mx-auto">Agotado</span></h5>
                   {% else %}
@@ -82,7 +152,8 @@
     </div>
   </section>
 
-  <!--                      
+
+  <!--                             
   <div class="col-md-8 mx-auto my-5">
     <div class="card bg-body-tertiary">
       <div class="card-body row p-3">
@@ -98,5 +169,5 @@
         </div>
       </div>
     </div>
-  </div>                     -->
+  </div>                            -->
 {% endblock %}

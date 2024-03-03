@@ -5,6 +5,8 @@ from django.utils import timezone
 from cuenta.models import Cuenta
 from django.db.models import Count, Avg
 
+import locale
+
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=200, unique=True)
@@ -39,6 +41,18 @@ class Producto(models.Model):
     def get_url_producto(self):
         return reverse("detalle_producto", args=[self.categoria.slug, self.slug])
 
+
+    # ? Consultar explicacion de formado de precio
+    # Hacer pruebas con la operaciones de carrito
+    # Hacer pruebas con descuentos
+    # Mirar como se estan guardando el precio de los pagos
+    # Crear un solo metodo que sirva para el precio original y descuento
+
+    def precio_formato(self):
+        # locale.setlocale(locale.LC_ALL,'es_CO.UTF-8')
+        # return locale.currency(self.precio, grouping=True)
+        return '{:,.0f}'.format(self.precio).replace(',', '.')
+
     def descuento_con_precio(self):
         # Verificar si la categoría tiene un descuento y si las fechas de inicio y fin están definidas
         if (
@@ -57,7 +71,6 @@ class Producto(models.Model):
                 # redondeo a dos decimales
                 precio_descuento = round(precio_descuento, 2)
 
-            
                 precio_descuento_texto = str(precio_descuento)
                 precio_descuento_arreglo = precio_descuento_texto.split(".")
                 precio_descuento_texto = precio_descuento_arreglo[0][::-1]
@@ -86,8 +99,6 @@ class Producto(models.Model):
         return self.precio
 
         # TODO reseña
-
-
 
     def promedioCalificacion(self):
         revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(
