@@ -8,8 +8,8 @@
 
 
     .bg_header {
-        /* background-color: #006eff; */
-        background-color: #0460D9;
+        background-color: #AFB0A2;
+        /* background-color: #989fa7; */
     }
 
     .bg-iconos {
@@ -20,27 +20,27 @@
     .bg-nav,
     .bg_footer {
         /* background-color: #0460D9; */
-        background-color: #006eff;
+        background-color: #f9f9f9;
     }
 
 
     .bg_menu {
-        background-color: #7e7d7d;
+        background-color: #15359B;
 
     }
 
     .btn_buscador {
-        background-color: #006eff;
+        background-color: #bcbcbc;
         border: 2px solid #ffffff;
     }
 
     .btn_buscador:hover {
-        background-color: #006eff;
+        background-color: #bcbcbc;
         border: 2px solid #ffffff;
     }
 
     .btn_carrito {
-        color: #ffffff;
+        background-color: #bcbcbc;
         border-radius: 50%;
         border: 2px solid #ffffff;
         width: 50px;
@@ -48,7 +48,7 @@
     }
 
     .btn_carrito:hover {
-        border: 2px solid #ffffff;
+        border: 2px solid #bcbcbc;
         color: #ffffff;
     }
 
