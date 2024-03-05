@@ -1,16 +1,16 @@
 {% load static %}
 <!-- Header -->
-<header class="bg_header">
+<header class="bg_header text-dark">
   <div class="container">
     <div class="d-flex justify-content-between py-2">
       <div>
-        <i class="fa-solid fa-truck-fast fa-lg bg-iconos"></i>
-        <span class="bg-iconos">Pedidos nacionales</span>
+        <i class="fa-solid fa-truck-fast fa-lg"></i>
+        <span class="">Pedidos nacionales</span>
       </div>
       <div class="d-flex align-items-center gap-4">
-        <a href="" class="bg-iconos"><i class="fa-brands fa-whatsapp fa-xl"></i></a>
-        <a href="" class="bg-iconos"><i class="fa-brands fa-facebook fa-xl"></i></a>
-        <a href="" class="bg-iconos"><i class="fa-brands fa-instagram fa-xl"></i></a>
+        <a href="" class=""><i class="fa-brands fa-whatsapp fa-xl" style="color: #000000;"></i></a>
+        <a href="" class=""><i class="fa-brands fa-facebook fa-xl" style="color: #000000;"></i></a>
+        <a href="" class=""><i class="fa-brands fa-instagram fa-xl" style="color: #000000;"></i></a>
       </div>
     </div>
   </div>
@@ -46,15 +46,15 @@
       <div class="d-flex">
         <div class="me-4">
           {% if user.is_authenticated %}
-            <small class="title text-light">Bienvenido <strong>{{ user.nombre }}</strong></small>
+            <small class="text-muted">Bienvenido <strong>{{ user.nombre }}</strong></small>
             <div>
-              <a href="{% url 'cerrar_sesion' %}" class="text-decoration-none text-light">Cerrar Sesión</a>
+              <a href="{% url 'cerrar_sesion' %}" class="text-decoration-none text-dark">Cerrar Sesión</a>
             </div>
           {% else %}
-            <small class="title text-light">Bienvenido</small>
+            <small class="text-dark">Bienvenido</small>
             <div>
-              <a href="{% url 'inicio_sesion' %}" class="text-decoration-none text-light">Iniciar Sesión</a> <span class="text-light">|</span>
-              <a href="{% url 'registrarse' %}" class="text-decoration-none text-light">Registrarse</a>
+              <a href="{% url 'inicio_sesion' %}" class="text-decoration-none text-dark">Iniciar Sesión</a> <span class="">|</span>
+              <a href="{% url 'registrarse' %}" class="text-decoration-none text-dark">Registrarse</a>
             </div>
           {% endif %}
         </div>
