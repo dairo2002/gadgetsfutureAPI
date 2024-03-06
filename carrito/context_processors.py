@@ -15,9 +15,13 @@ def mostrar_carrito(request, total=0, cantidad=0, carrito=None):
             carrito = Carrito.objects.filter(carritoSesion=carrito_sesion, activo=True)
         for articulo in carrito:
             if articulo.producto.descuento_con_precio():
-                descuento = float(articulo.producto.descuento_con_precio())
-                total += descuento * articulo.cantidad              
-                # total += articulo.producto.descuento_con_precio() * articulo.cantidad              
+                get_descuento = articulo.producto.descuento_con_precio()
+                descuento = get_descuento.get("descuento")
+                if descuento is not None:
+                    total += float(descuento.replace('.', '')) * articulo.cantidad
+                else:
+                    original = get_descuento.get("original")
+                    total += float(original.replace('.', '')) * articulo.cantidad
                 cantidad += articulo.cantidad
             else:
                 total += articulo.producto.precio * articulo.cantidad

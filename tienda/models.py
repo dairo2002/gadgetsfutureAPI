@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.utils import timezone
 from cuenta.models import Cuenta
 from django.db.models import Count, Avg
+from decimal import Decimal
 
 import locale
 
@@ -17,7 +18,12 @@ class Categoria(models.Model):
     fecha_inicio = models.DateTimeField(null=True, blank=True)
     fecha_fin = models.DateTimeField(null=True, blank=True)
 
-    # Ruta de la categoria
+    '''
+        - reverse: Función de Django para obtener URLs de vistas.
+        - categoria_a_producto: Nombre de la vista.
+        - args: Lista de argumentos para la vista.
+        - self.slug: Atributo del objeto actual (una categoría).
+    '''
     def get_url_categoria(self):
         return reverse("categoria_a_producto", args=[self.slug])
 
@@ -41,64 +47,86 @@ class Producto(models.Model):
     def get_url_producto(self):
         return reverse("detalle_producto", args=[self.categoria.slug, self.slug])
 
-
     # ? Consultar explicacion de formado de precio
     # Hacer pruebas con la operaciones de carrito
     # Hacer pruebas con descuentos
     # Mirar como se estan guardando el precio de los pagos
     # Crear un solo metodo que sirva para el precio original y descuento
 
-    def precio_formato(self):
-        # locale.setlocale(locale.LC_ALL,'es_CO.UTF-8')
-        # return locale.currency(self.precio, grouping=True)
-        return '{:,.0f}'.format(self.precio).replace(',', '.')
+    # def precio_formato(self):
+    #     # locale.setlocale(locale.LC_ALL,'es_CO.UTF-8')
+    #     # return locale.currency(self.precio, grouping=True)
+    #     return "{:,.0f}".format(self.precio).replace(",", ".")
 
+    # ? CORREGIR
     def descuento_con_precio(self):
-        # Verificar si la categoría tiene un descuento y si las fechas de inicio y fin están definidas
+        # Formato al precio original
+        # "{:,.0f}" es una cadena que formatea numero como cadenas con separadores de miles, sin decimales
+        # "{:,.0f}".format(1234567.89) dará como resultado "1,234,568".
+        precio_formateado = "{:,.0f}".format(self.precio).replace(",", ".")
+
         if (
             self.categoria.descuento
             and self.categoria.fecha_inicio
             and self.categoria.fecha_fin
         ):
-            # Verificar si la fecha actual está dentro del rango de fechas de inicio y fin del descuento
-            fecha_actual = timezone.now()
-            if self.categoria.fecha_inicio <= fecha_actual <= self.categoria.fecha_fin:
-                # Convierte el descuento de procentaje a decimal
-                descuento_decimal = 1 - (self.categoria.descuento / 100)
-                # Calcula el precio con descuento
-                # precio_descuento = self.precio - (self.precio * descuento_decimal)
-                precio_descuento = self.precio * descuento_decimal
-                # redondeo a dos decimales
-                precio_descuento = round(precio_descuento, 2)
+            # Formato al precio con descuento aplicado
+            precio_con_descuento = self.precio * (1 - (self.categoria.descuento / 100))
+            descuento_formateado = "{:,.0f}".format(precio_con_descuento).replace(
+                ",", "."
+            )
 
-                precio_descuento_texto = str(precio_descuento)
-                precio_descuento_arreglo = precio_descuento_texto.split(".")
-                precio_descuento_texto = precio_descuento_arreglo[0][::-1]
-                indice = 1
-                precio_descuento_arreglo[0] = ""
-                for element in range(0, len(precio_descuento_texto)):
-                    precio_descuento_arreglo[0] = (
-                        precio_descuento_arreglo[0] + precio_descuento_texto[element]
-                    )
+            return {"descuento": descuento_formateado, "original": precio_formateado}
+            # return descuento_formateado
+        else:
+           return {"original": precio_formateado}
+        
+    # def descuento_con_precio(self):
+    #     # Verificar si la categoría tiene un descuento y si las fechas de inicio y fin están definidas
+    #     if (
+    #         self.categoria.descuento
+    #         and self.categoria.fecha_inicio
+    #         and self.categoria.fecha_fin
+    #     ):
+    #         # Verificar si la fecha actual está dentro del rango de fechas de inicio y fin del descuento
+    #         fecha_actual = timezone.now()
+    #         if self.categoria.fecha_inicio <= fecha_actual <= self.categoria.fecha_fin:
+    #             # Convierte el descuento de procentaje a decimal
+    #             descuento_decimal = 1 - (self.categoria.descuento / 100)
+    #             # Calcula el precio con descuento
+    #             # precio_descuento = self.precio - (self.precio * descuento_decimal)
+    #             precio_descuento = self.precio * descuento_decimal
+    #             # redondeo a dos decimales
+    #             precio_descuento = round(precio_descuento, 2)
 
-                    if indice % 3 == 0 and len(precio_descuento_texto) != indice:
-                        precio_descuento_arreglo[0] = precio_descuento_arreglo[0] + "."
+    #             precio_descuento_texto = str(precio_descuento)
+    #             precio_descuento_arreglo = precio_descuento_texto.split(".")
+    #             precio_descuento_texto = precio_descuento_arreglo[0][::-1]
+    #             indice = 1
+    #             precio_descuento_arreglo[0] = ""
+    #             for element in range(0, len(precio_descuento_texto)):
+    #                 precio_descuento_arreglo[0] = (
+    #                     precio_descuento_arreglo[0] + precio_descuento_texto[element]
+    #                 )
 
-                    indice += 1
-                precio_descuento_texto = precio_descuento_arreglo[0][::-1]
-                # precio_descuento=Decimal(precio_descuento_texto)
-                return precio_descuento_texto
-            else:
-                # Si la fecha actual está fuera del rango de fechas de descuento, limpiar los campos relacionados con el descuento
-                self.categoria.descuento = None
-                self.categoria.fecha_inicio = None
-                self.categoria.fecha_fin = None
-                self.categoria.save()
-                return self.precio
+    #                 if indice % 3 == 0 and len(precio_descuento_texto) != indice:
+    #                     precio_descuento_arreglo[0] = precio_descuento_arreglo[0] + "."
 
-        return self.precio
+    #                 indice += 1
+    #             precio_descuento_texto = precio_descuento_arreglo[0][::-1]
+    #             # precio_descuento=Decimal(precio_descuento_texto)
+    #             return precio_descuento_texto
+    #         else:
+    #             # Si la fecha actual está fuera del rango de fechas de descuento, limpiar los campos relacionados con el descuento
+    #             self.categoria.descuento = None
+    #             self.categoria.fecha_inicio = None
+    #             self.categoria.fecha_fin = None
+    #             self.categoria.save()
+    #             return self.precio
 
-        # TODO reseña
+    #     return self.precio
+
+    # TODO reseña
 
     def promedioCalificacion(self):
         revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(

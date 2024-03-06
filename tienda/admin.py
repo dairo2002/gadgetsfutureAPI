@@ -7,9 +7,13 @@ class CategoriaAdmin(admin.ModelAdmin):
     list_display = ("nombre", "slug", "descuento", "fecha_inicio", "fecha_fin")
 
 
+
+
+
 class ProductoAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("nombre",)}
     list_display = ("nombre", "slug", "precio", "stock", "disponible", "categoria")
+
 
 
 class ValoracionAdmin(admin.ModelAdmin):

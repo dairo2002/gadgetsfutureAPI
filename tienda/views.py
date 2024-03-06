@@ -15,7 +15,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from .serializers import ProductoSerializer
+from .serializers import ProductoSerializer, CategoriaSerializer
 
 
 # Tienda de productos que pertenecen a una categoria
@@ -30,7 +30,6 @@ def tienda(request, categoria_slug=None):
         contar_productos = productos.count()
 
         # ? Paginacion
-
         # Configuramos la paginación con la cantidad total de productos
         paginacion = Paginator(productos, len(productos))
         # Obtenemos el número de la página actual desde los parámetros de la solicitud
@@ -43,7 +42,7 @@ def tienda(request, categoria_slug=None):
         productos = Producto.objects.all().filter(disponible=True)
         # Contamos la cantidad total de productos disponibles
         contar_productos = productos.count()
-        paginacion = Paginator(productos, 3)
+        paginacion = Paginator(productos, 4)
         pagina_numero = request.GET.get("pagina")
         pagina_producto = paginacion.get_page(pagina_numero)
     return render(
@@ -51,12 +50,6 @@ def tienda(request, categoria_slug=None):
         "tienda/tienda.html",
         {"producto": pagina_producto, "contador_producto": contar_productos},
     )
-
-
-@api_view(["GET"])
-def storeAPIView(request):
-    pass
-
 
 # Tienda un producto unico hacia su detalle
 def detalle_producto(request, categoria_slug, producto_slug):
@@ -136,6 +129,7 @@ def filtro_buscar_producto(request):
     )
 
 
+# ? Corregir que el filtro pueda buscar con decimales, Tambien la API
 def filtro_rango_precios(request):
     try:
         precio_minimo = float(request.POST.get("min_precio"))
@@ -169,6 +163,38 @@ def filtro_rango_precios(request):
     )
 
 
+@api_view(["POST"])
+def range_priceAPIView(request):
+    try:
+        precio_minimo = float(request.GET.get("min_precio"))
+        precio_maximo = float(request.GET.get("max_precio"))
+    except ValueError:
+        return Response(
+            {"error": "Los valores de precio son inválidos"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if precio_minimo is not None and precio_maximo is not None:
+        productos = Producto.objects.filter(
+            Q(precio__range=[precio_minimo, precio_maximo])
+        ).order_by("precio")
+
+        # Ordenar los productos por precio de menor a mayor
+        # productos = productos.order_by("precio")
+        # Contador de productos
+        contar_productos = productos.count()
+
+    else:
+        return Response(
+            {"error": "Los valores de precio deben ser número"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    serializer = ProductoSerializer(productos, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# ? Terminar
 def valoracion(request, producto_id):
     # almacena la ruta anterior, para ser redirijidad
     url = request.META.get("HTTP_REFERER")
@@ -196,10 +222,28 @@ def valoracion(request, producto_id):
                 messages.success(request, "Tu reseña ha sido enviada")
                 return redirect(url)
 
-
 # ? APIS
+@api_view(["GET"])
+def categoryAPIView(request):
+    queryset = Categoria.objects.all()
+    serializer = CategoriaSerializer(queryset, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
+#  Me trae los productos de una categoría
+@api_view(["GET"])
+def storeAPIView(request, category_slug=None):
+    if category_slug is not None:
+        categorias = get_object_or_404(Categoria, slug=category_slug)
+        productos = Producto.objects.all().filter(categoria=categorias, disponible=True)
+        serializer = ProductoSerializer(productos, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(
+            {"error": "No se encontro el producto con la categoria"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
+# Detalle de un unico producto
 @api_view(["GET"])
 def detail_productAPIView(request, category_slug, product_slug):
     try:
@@ -215,7 +259,7 @@ def detail_productAPIView(request, category_slug, product_slug):
             status=status.HTTP_404_NOT_FOUND,
         )
 
-
+# Buscador de un producto
 @api_view(["POST"])
 def searchProductAPIView(request):
     palabra_clave = None
@@ -230,10 +274,13 @@ def searchProductAPIView(request):
 
         contar_productos = productos_encontrados.count()
         if contar_productos == 0:
-            return Response({'error': 'No se encontraron productos que coincidan con la búsqueda'}, status=status.HTTP_404_NOT_FOUND)
-
+            return Response(
+                {"error": "No se encontraron productos que coincidan con la búsqueda"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
     # Serializar todos los productos encontrados, en caso de que no funcion crear un serializer para search product
     serializer = ProductoSerializer(productos_encontrados, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
