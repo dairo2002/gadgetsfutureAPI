@@ -82,6 +82,7 @@ def registrarse(request):
     return render(request, "cuenta/registrarse.html", {"form": formulario})
 
 
+# ! Corregir
 def inicio_sesion(request):
     # Verifica si la solicitud al servidor es de tipo POST
     if request.method == "POST":
@@ -94,23 +95,33 @@ def inicio_sesion(request):
             correo_electronico=correo_electronico, password=password
         )
 
-        # Verifica si el usuario no es nulo
+        # Verificar si hay un producto en el carrito existente y asociarlo al usuario
         if usuarios is not None:
-            # Verificar si hay un carrito existente y asociarlo al usuario
             try:
+                # Obtner la sesion del carrito
                 carrito_sesion = CarritoSesion.objects.get(
                     carrito_session=_carrito_sesion(request)
                 )
+
                 carrito_existe = Carrito.objects.filter(
                     carritoSesion=carrito_sesion
                 ).exists()
+
                 if carrito_existe:
                     carrito = Carrito.objects.filter(carritoSesion=carrito_sesion)
                     for articulo in carrito:
                         articulo.usuario = usuarios
                         articulo.save()
+                # else:
+                #     if carrito_existe:
+                #         carrito = Carrito.objects.get(producto=producto, carritoSesion=carrito_sesion)
+                #         carrito.cantidad += 1
+                #         carrito.save()         
+                #     else:
+                #         carrito = Carrito.objects.create(producto=producto, cantidad=1, carritoSesion=carrito_sesion)
             except Exception as e:
                 print(f"Error: ", {e})
+
             # Establece la sesion al usuario
             auth.login(request, usuarios)
             messages.success(
@@ -222,39 +233,40 @@ def restablecer_password(request):
 
 # ? APIS
 
+
 # Validar que en api que las dos contraseñas concidan, sino hacer la validacion en movil
 @api_view(["POST"])
 def signupAPIView(request):
-        serializer = CuentaSerializer(data=request.data)
-        if serializer.is_valid():
-            nombre = serializer.validated_data.get("nombre")
-            apellido = serializer.validated_data.get("apellido")
-            correo_electronico = serializer.validated_data.get("correo_electronico")
-            telefono = serializer.validated_data.get("telefono")
-            password = serializer.validated_data.get("password")
-            usuario = correo_electronico.split("@")[0]
-            # Utiliza tu método personalizado create_user para crear el usuario
-            usuario_creado = Cuenta.objects.create_user(
-                nombre=nombre,
-                apellido=apellido,
-                username=usuario,
-                correo_electronico=correo_electronico,
-                password=password,
+    serializer = CuentaSerializer(data=request.data)
+    if serializer.is_valid():
+        nombre = serializer.validated_data.get("nombre")
+        apellido = serializer.validated_data.get("apellido")
+        correo_electronico = serializer.validated_data.get("correo_electronico")
+        telefono = serializer.validated_data.get("telefono")
+        password = serializer.validated_data.get("password")
+        usuario = correo_electronico.split("@")[0]
+        # Utiliza tu método personalizado create_user para crear el usuario
+        usuario_creado = Cuenta.objects.create_user(
+            nombre=nombre,
+            apellido=apellido,
+            username=usuario,
+            correo_electronico=correo_electronico,
+            password=password,
+        )
+        usuario_creado.telefono = telefono
+        usuario_creado.save()
+        # Genera un token para el usuario registrado
+        token, created = Token.objects.get_or_create(user=usuario_creado)
+        if created:
+            return Response(
+                {
+                    "token": token.key,
+                    "success": True,
+                    "message": f"Bienvenido {usuario_creado.nombre} {usuario_creado.apellido}",
+                },
+                status=status.HTTP_201_CREATED,
             )
-            usuario_creado.telefono = telefono
-            usuario_creado.save()
-            # Genera un token para el usuario registrado
-            token, created = Token.objects.get_or_create(user=usuario_creado)
-            if created:
-                return Response(
-                    {
-                        "token": token.key,
-                        "success": True,
-                        "message": f"Bienvenido {usuario_creado.nombre} {usuario_creado.apellido}",
-                    },
-                    status=status.HTTP_201_CREATED,
-                )        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -324,12 +336,14 @@ def logoutAPIView(request):
         )
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 def recover_password(request):
     if request.method == "POST":
         correo_electronico = request.data.get("correo_electronico")
 
-        existe_email = Cuenta.objects.filter(correo_electronico=correo_electronico).exists()
+        existe_email = Cuenta.objects.filter(
+            correo_electronico=correo_electronico
+        ).exists()
         if existe_email:
             usuario = Cuenta.objects.get(correo_electronico__exact=correo_electronico)
 
@@ -353,12 +367,12 @@ def recover_password(request):
             send_email.send()
 
             return Response(
-                {"message": "Se ha enviado un correo electrónico de restablecimiento de contraseña a su dirección de correo electrónico"},
-                status=status.HTTP_200_OK
+                {
+                    "message": "Se ha enviado un correo electrónico de restablecimiento de contraseña a su dirección de correo electrónico"
+                },
+                status=status.HTTP_200_OK,
             )
         else:
             return Response(
-                {"error": "La cuenta no existe!"},
-                status=status.HTTP_404_NOT_FOUND
+                {"error": "La cuenta no existe!"}, status=status.HTTP_404_NOT_FOUND
             )
-

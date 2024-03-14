@@ -1,5 +1,6 @@
 {% load static %}
-<!-- Header -->
+<!-- 
+
 <header class="bg_header text-dark">
   <div class="container">
     <div class="d-flex justify-content-between py-2">
@@ -15,7 +16,7 @@
     </div>
   </div>
 </header>
-<!-- End header -->
+-->
 
 <nav class="navbar navbar-expand-lg bg-nav sticky-top">
   <div class="container my-1">
@@ -39,29 +40,67 @@
       </div>
       <form action="{% url 'buscar_producto' %}" method="GET" class="mx-auto mb-2 mb-lg-0" role="search">
         <div class="input-group campoBuscar mx-2">
-          <input name="txtBusqueda" type="search" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" placeholder="¿Qué estás buscando?" required />
-          <button class="btn btn_buscador text-white" type="submit" id="inputGroupFileAddon04"><i class="fa-solid fa-magnifying-glass fa-xl"></i></button>
+          <input name="txtBusqueda" type="search" class="form-control " id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" placeholder="¿Qué estás buscando?" required />
+          <button class="btn btn_buscador " type="submit" id="inputGroupFileAddon04"><i class="fa-solid fa-magnifying-glass fa-xl icon-buscar"></i></button>
         </div>
       </form>
       <div class="d-flex">
-        <div class="me-4">
+        <div class="me-4">    
           {% if user.is_authenticated %}
             <small class="text-muted">Bienvenido <strong>{{ user.nombre }}</strong></small>
             <div>
-              <a href="{% url 'cerrar_sesion' %}" class="text-decoration-none text-dark">Cerrar Sesión</a>
+                <ul class="list-unstyled">
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <!--
+                        <i class="fa-solid fa-gear fa-xl"></i>    
+                        --> 
+                        <i class="fa-regular fa-user fa-lg icon-user"></i>
+                    </a>
+                      <ul class="dropdown-menu">
+                        <li>
+                        <a href="{% url 'cerrar_sesion' %}" class="dropdown-item text-decoration-none text-dark">Salir 
+                            <i class="fa-solid fa-right-from-bracket"></i>     
+                        </a>
+                        </li>
+                        <li>
+                          <a href="" class="dropdown-item text-decoration-none text-dark">Desactivar cuenta</a>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
             </div>
           {% else %}
             <small class="text-dark">Bienvenido</small>
-            <div>
-              <a href="{% url 'inicio_sesion' %}" class="text-decoration-none text-dark">Iniciar Sesión</a> <span class="">|</span>
-              <a href="{% url 'registrarse' %}" class="text-decoration-none text-dark">Registrarse</a>
+            <div>            
+                <ul class="list-unstyled">
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <!--
+                        <i class="fa-solid fa-gear fa-xl"></i>    
+                        --> 
+                        <i class="fa-regular fa-user fa-lg icon-user"></i>
+                    </a>
+                      <ul class="dropdown-menu">
+                        <li>
+                            <a href="{% url 'inicio_sesion' %}" class="dropdown-item text-decoration-none text-dark">Iniciar Sesión</a>                                                    
+                        </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'registrarse' %}" class="dropdown-item text-decoration-none text-dark">Registrarse</a>                        
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>            
+                <!-- <a href="{% url 'inicio_sesion' %}" class="text-decoration-none text-dark">Iniciar Sesión</a> <span class="">|</span>
+                <a href="{% url 'registrarse' %}" class="text-decoration-none text-dark">Registrarse</a> -->
             </div>
           {% endif %}
         </div>
 
         <button class="btn btn_carrito d-flex flex-column align-items-center p-0 btn_carrito" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
-          <span class="badge rounded-5" style="font-size: 16px;">{{ contar_productos }}</span>
-          <i class="fa-solid fa-cart-arrow-down fa-xl bg-iconos"></i>
+          <span class="badge rounded-5" style="font-size: 16px; color: #15359B;">{{ contar_productos }}</span>
+          <i class="fa-solid fa-cart-arrow-down fa-xl icon-carrito"></i>
         </button>
       </div>
     </div>

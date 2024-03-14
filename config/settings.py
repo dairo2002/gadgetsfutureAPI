@@ -26,7 +26,14 @@ SECRET_KEY = "django-insecure-szp!n#jdpn!%2(05-!js=-f_fk)fzrx@&gvvb^%jo)^0+4(4$7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
+
+# CORS_ALLOWED_ORIGINS = [
+# "http://127.0.0.1:5500",
+# "http://localhost:5500"
+# ]
 
 
 # Application definition
@@ -88,6 +95,7 @@ TEMPLATES = [
                 # "tienda.context_processors.rango_precios",
                 "carrito.context_processors.mostrar_carrito",
                 "carrito.context_processors.contar_productos",
+                # "carrito.context_processors.descuento",
             ],
         },
     },
@@ -135,9 +143,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = "es"  # Idioma español
+LANGUAGE_CODE = "es" 
 
-TIME_ZONE = "America/Bogota"  # Tiempo actual
+TIME_ZONE = "America/Bogota" 
 
 USE_I18N = True
 
@@ -172,8 +180,15 @@ EMAIL_HOST_USER = "gadgetsfuture09@gmail.com"
 EMAIL_HOST_PASSWORD = "ifvb svpc ipjk fric"
 EMAIL_USE_TLS = True
 
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+'''
+CORS_ALLOWED_ORIGINS = [
+"http://127.0.0.1:5500",
+"http://localhost:5500"
+]
+'''

@@ -1,6 +1,7 @@
 from django.db import models
 from tienda.models import Producto
 from cuenta.models import Cuenta
+import locale, decimal
 
 
 class CarritoSesion(models.Model):
@@ -22,30 +23,37 @@ class Carrito(models.Model):
     fecha_agregado = models.DateField(auto_now_add=True)
     # igual a null, lo que indica que no están vinculados a ningún carrito específico. Esto podría ser útil si deseas mantener un historial de los artículos
 
+    
+    
+
     # def sub_total(self):
-    #     if self.producto.descuento_con_precio():
-    #         return self.producto.descuento_con_precio() * self.cantidad
+    #     precio_unitario = self.producto.precio
+    #     cantidad = self.cantidad
+
+    #     subtotal_original = precio_unitario * cantidad
+    #     subtotal_formateado_original = locale.currency(subtotal_original, grouping=True)
+
+    #     descuento = self.producto.aplicar_descuento()
+
+    #     if descuento is not None:
+    #           # Verificar si se aplicó un descuento
+    #         subtotal_descuento = subtotal_original - descuento
+    #         subtotal_formateado_descuento = locale.currency(subtotal_descuento, grouping=True)
+    #         return subtotal_formateado_original, subtotal_formateado_descuento
     #     else:
-    #         return self.producto.precio * self.cantidad
-
-
-    # ? CORREGIR 
+    #         return subtotal_formateado_original, subtotal_formateado_original
+        
     def sub_total(self):
-        precio_con_descuento = self.producto.descuento_con_precio()
-        if isinstance(precio_con_descuento, dict):
-            # Si el precio con descuento es un diccionario, intenta obtener el valor 'descuento'
-            precio_con_descuento = precio_con_descuento.get('descuento')  # Si no hay descuento, asume 0
+        locale.setlocale(locale.LC_ALL, "es_CO")
+        
+        if self.producto.aplicar_descuento():          
+            descuento = self.producto.aplicar_descuento()  * self.cantidad         
+            return descuento
         else:
-            # Si no es un diccionario, ya es el precio con descuento
-            precio_con_descuento = precio_con_descuento or self.producto.precio  # Si no hay descuento, usa el precio original
-
-        # Verifica si precio_con_descuento es None antes de multiplicar
-        if precio_con_descuento is not None:
-            return precio_con_descuento * self.cantidad
-        else:
-            return 0  # O cualquier otro valor predeterminado que desees usar
-
-
+            precio = self.producto.precio * self.cantidad
+            precio_formato = locale.currency(precio, grouping=True)
+            return precio_formato
+  
 
     def __unicode__(self):
         return self.producto

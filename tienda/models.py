@@ -4,9 +4,8 @@ from decimal import Decimal
 from django.utils import timezone
 from cuenta.models import Cuenta
 from django.db.models import Count, Avg
-from decimal import Decimal
 
-import locale
+import locale, decimal
 
 
 class Categoria(models.Model):
@@ -18,12 +17,13 @@ class Categoria(models.Model):
     fecha_inicio = models.DateTimeField(null=True, blank=True)
     fecha_fin = models.DateTimeField(null=True, blank=True)
 
-    '''
+    """
         - reverse: Función de Django para obtener URLs de vistas.
         - categoria_a_producto: Nombre de la vista.
         - args: Lista de argumentos para la vista.
         - self.slug: Atributo del objeto actual (una categoría).
-    '''
+    """
+
     def get_url_categoria(self):
         return reverse("categoria_a_producto", args=[self.slug])
 
@@ -53,34 +53,84 @@ class Producto(models.Model):
     # Mirar como se estan guardando el precio de los pagos
     # Crear un solo metodo que sirva para el precio original y descuento
 
-    # def precio_formato(self):
-    #     # locale.setlocale(locale.LC_ALL,'es_CO.UTF-8')
-    #     # return locale.currency(self.precio, grouping=True)
-    #     return "{:,.0f}".format(self.precio).replace(",", ".")
+    # return "{:,.0f}".format(self.precio).replace(",", ".")
+    # locale.setlocale(locale.LC_ALL,'es_CO.UTF-8')
+    # return locale.currency(self.precio, grouping=True)
 
-    # ? CORREGIR
-    def descuento_con_precio(self):
-        # Formato al precio original
-        # "{:,.0f}" es una cadena que formatea numero como cadenas con separadores de miles, sin decimales
-        # "{:,.0f}".format(1234567.89) dará como resultado "1,234,568".
-        precio_formateado = "{:,.0f}".format(self.precio).replace(",", ".")
+    def aplicar_descuento(self):
+        # Precio formateado a la moneda colombiana
+        locale.setlocale(locale.LC_ALL, "es_CO")
 
         if (
             self.categoria.descuento
             and self.categoria.fecha_inicio
             and self.categoria.fecha_fin
         ):
-            # Formato al precio con descuento aplicado
-            precio_con_descuento = self.precio * (1 - (self.categoria.descuento / 100))
-            descuento_formateado = "{:,.0f}".format(precio_con_descuento).replace(
-                ",", "."
-            )
 
-            return {"descuento": descuento_formateado, "original": precio_formateado}
-            # return descuento_formateado
+            fecha_actual = timezone.now()
+            if self.categoria.fecha_inicio <= fecha_actual <= self.categoria.fecha_fin:
+                descuento_decimal = 1 - decimal.Decimal(self.categoria.descuento / 100)
+                # descuento_decimal = 1 - (self.categoria.descuento / 100)
+                descuento = self.precio * descuento_decimal
+
+                # precio_formateado = locale.currency(self.precio, grouping=True)
+                descuento_formateado = locale.currency(descuento, grouping=True)
+                return descuento_formateado
+            else:
+                # Si la fecha actual está fuera del rango de fechas de descuento, limpiar los campos relacionados con el descuento
+                self.categoria.descuento = None
+                self.categoria.fecha_inicio = None
+                self.categoria.fecha_fin = None
+                self.categoria.save()
+                precio_formateado = locale.currency(self.precio, grouping=True)
+                return precio_formateado
         else:
-           return {"original": precio_formateado}
-        
+            precio_formateado = locale.currency(self.precio, grouping=True)
+            return precio_formateado
+
+    def operacion_descuento(self):
+        locale.setlocale(locale.LC_ALL, "es_CO")
+        if self.categoria.descuento is not None:
+            descuento_decimal = 1 - self.categoria.descuento / 100
+            # descuento_decimal = 1 - (self.categoria.descuento / 100)
+            descuento = self.precio * descuento_decimal
+            descuento_formateado = locale.currency(descuento, grouping=True)
+            return descuento_formateado
+        else:
+            return "descuento no definido"
+
+    # def aplicar_descuento(self):
+    #     # Precio formateado a la moneda colombiana
+    #     locale.setlocale(locale.LC_ALL, "es_CO")
+
+    #     if (
+    #         self.categoria.descuento
+    #         and self.categoria.fecha_inicio
+    #         and self.categoria.fecha_fin
+    #     ):
+
+    #         fecha_actual = timezone.now()
+    #         if self.categoria.fecha_inicio <= fecha_actual and self.categoria.fecha_fin:
+    #             descuento_decimal = 1 - (self.categoria.descuento / 100)
+    #             descuento = self.precio * descuento_decimal
+
+    #             precio_formateado = locale.currency(self.precio, grouping=True)
+    #             descuento_formateado = locale.currency(descuento, grouping=True)
+
+    #             return descuento_formateado, precio_formateado
+    #         else:
+    #             # Si la fecha actual está fuera del rango de fechas de descuento, limpiar los campos relacionados con el descuento
+    #             self.categoria.descuento = None
+    #             self.categoria.fecha_inicio = None
+    #             self.categoria.fecha_fin = None
+    #             self.categoria.save()
+
+    #             precio_formateado = locale.currency(self.precio, grouping=True)
+    #             return  descuento_formateado
+    #     else:
+    #         descuento_formateado = locale.currency(descuento, grouping=True)
+    #         return precio_formateado
+
     # def descuento_con_precio(self):
     #     # Verificar si la categoría tiene un descuento y si las fechas de inicio y fin están definidas
     #     if (
@@ -126,7 +176,25 @@ class Producto(models.Model):
 
     #     return self.precio
 
-    # TODO reseña
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def promedioCalificacion(self):
         revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(
@@ -137,7 +205,6 @@ class Producto(models.Model):
             avg = float(revisar["promedio"])
         return avg
 
-    # TODO contar con calificaciones ahi del producto
     def contarCalificaciones(self):
         revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(
             contar=Count("id")

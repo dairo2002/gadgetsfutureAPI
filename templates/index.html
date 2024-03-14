@@ -78,11 +78,11 @@
                   <h6 class="fw-semibold">{{ productos.nombre }}</h6>
                   <div class="row">
                     <div class="d-flex justify-content-between">                      
-                      <span>$ {{ productos.descuento_con_precio.descuento }}</span>
+                      <span>{{ productos.aplicar_descuento }}</span>
                       <span class="badge text-bg-success">{{ productos.categoria.descuento }}%</span>
                     </div>
                     <del>
-                      <small class="text-muted mx-2">$ {{ productos.descuento_con_precio.original }}</small>
+                      <small class="text-muted mx-2">{{ productos.precio }}</small>
                     </del>
                   </div>
                   {% if productos.stock <= 0 %}
@@ -98,8 +98,8 @@
               <div class="card tarjeta_productos h-100">
                 <div class="card-body">
                   <a href="{{ productos.get_url_producto }}"><img src="{{ productos.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" /></a>
-                  <h6 class="fw-semibold">{{ productos.nombre }}</h6>
-                  <span class="mb-2">$ {{ productos.descuento_con_precio }}</span>
+                  <h6 class="fw-semibold">{{ productos.nombre }}</h6>                 
+                  <span class="mb-2">{{ productos.aplicar_descuento }}</span>
                   {% if productos.stock <= 0 %}
                     <h5><span class="badge text-bg-danger mt-4 mx-auto">Agotado</span></h5>
                   {% else %}

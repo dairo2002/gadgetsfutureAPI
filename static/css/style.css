@@ -7,55 +7,64 @@
 
 
 
-    .bg_header {
+    /*.bg_header {
         background-color: #AFB0A2;
-        /* background-color: #989fa7; */
-    }
+    }*/
 
     .bg-iconos {
         /* color: #7e7d7d; */
         color: #ffffff;
     }
 
-    .bg-nav,
-    .bg_footer {
+    .bg-nav {
         /* background-color: #0460D9; */
         background-color: #f9f9f9;
     }
 
 
-    .bg_menu {
+    .bg_menu,
+    .bg_footer {
         background-color: #15359B;
-
     }
 
     .btn_buscador {
-        background-color: #bcbcbc;
-        border: 2px solid #ffffff;
+        /* background-color: #bcbcbc; */
+        border: 1px solid #AFB0A2;
     }
 
     .btn_buscador:hover {
-        background-color: #bcbcbc;
-        border: 2px solid #ffffff;
+        /* background-color: #bcbcbc; */
+        border: 1px solid #AFB0A2;
+    }
+
+    .txtBusqueda {
+        border: 1px solid #AFB0A2;
     }
 
     .btn_carrito {
-        background-color: #bcbcbc;
+        /* background-color: #bcbcbc; */
         border-radius: 50%;
-        border: 2px solid #ffffff;
+        border: 1px solid #AFB0A2;
         width: 50px;
         height: 50px;
     }
 
     .btn_carrito:hover {
-        border: 2px solid #bcbcbc;
-        color: #ffffff;
+        border: 1px solid #AFB0A2;
+        color: #AFB0A2;
     }
 
-    .btn_carrito:active {
-        border: 1px solid #ffffff;
-        color: #ffffff;
+    .icon-carrito,
+    .icon-buscar,
+    .icon-user {
+        color: #AFB0A2;
     }
+
+
+    /* .btn_carrito:active {
+        border: 1px solid #AFB0A2;
+        color: #ffffff;
+    } */
 
     .campoBuscar {
         width: 400px;

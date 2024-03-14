@@ -222,6 +222,7 @@ def valoracion(request, producto_id):
                 messages.success(request, "Tu reseña ha sido enviada")
                 return redirect(url)
 
+
 # ? APIS
 @api_view(["GET"])
 def categoryAPIView(request):
@@ -231,9 +232,9 @@ def categoryAPIView(request):
 
 #  Me trae los productos de una categoría
 @api_view(["GET"])
-def storeAPIView(request, category_slug=None):
-    if category_slug is not None:
-        categorias = get_object_or_404(Categoria, slug=category_slug)
+def storeAPIView(request, category_id=None):
+    if category_id is not None:
+        categorias = get_object_or_404(Categoria, id=category_id)
         productos = Producto.objects.all().filter(categoria=categorias, disponible=True)
         serializer = ProductoSerializer(productos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -242,6 +243,19 @@ def storeAPIView(request, category_slug=None):
             {"error": "No se encontro el producto con la categoria"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+# def storeAPIView(request, category_slug=None):
+#     if category_slug is not None:
+#         categorias = get_object_or_404(Categoria, slug=category_slug)
+#         productos = Producto.objects.all().filter(categoria=categorias, disponible=True)
+#         serializer = ProductoSerializer(productos, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+#     else:
+#         return Response(
+#             {"error": "No se encontro el producto con la categoria"},
+#             status=status.HTTP_400_BAD_REQUEST,
+#         )
+
+
 
 # Detalle de un unico producto
 @api_view(["GET"])
@@ -250,6 +264,35 @@ def detail_productAPIView(request, category_slug, product_slug):
         # Intenta obtener un único producto filtrando por el slug de la categoría y el slug del producto
         categoria = get_object_or_404(Categoria, slug=category_slug)
         producto = get_object_or_404(Producto, categoria=categoria, slug=product_slug)
+
+        serializer = ProductoSerializer(producto)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Producto.DoesNotExist:
+        return Response(
+            {"error": "Lista de productos no encontrado"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    
+
+@api_view(["GET"])
+def detail_productAPIView2(request, category_id, product_id):
+    try:
+        # Intenta obtener un único producto filtrando por el slug de la categoría y el slug del producto
+        categoria = get_object_or_404(Categoria, id=category_id)
+        producto = get_object_or_404(Producto, categoria=categoria, id=product_id)
+
+        serializer = ProductoSerializer(producto)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Producto.DoesNotExist:
+        return Response(
+            {"error": "Lista de productos no encontrado"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+@api_view(["GET"])
+def detail_productsAPIView(request, product_id):
+    try:
+        producto = get_object_or_404(Producto, id=product_id)
 
         serializer = ProductoSerializer(producto)
         return Response(serializer.data, status=status.HTTP_200_OK)

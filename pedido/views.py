@@ -14,9 +14,13 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 
-
 from cuenta.models import Cuenta
 
+# API
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from .serializers import PedidoSerializer
 
 import datetime
 
@@ -72,6 +76,31 @@ def realizar_pedido(request, total=0, cantidad=0):
         formulario = PedidoForm()
     return render(request, "pedido/realizar_pedido.html", {"form": formulario})
 
+
+@api_view(["GET", "POST"])
+def orderAPIView(request):
+    # HACER PRUEBAS MAS ADELANTE
+    # total = 0
+    # cantidad = 0
+    # usuario_actual = request.user
+    # carrito = Carrito.objects.filter(usuario=usuario_actual)
+    # contar_carrito = carrito.count()
+
+    # if contar_carrito <= 0:
+    #     return Response({"message": "No hay artículos en el carrito"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # for articulo in carrito:
+    #     if articulo.producto.descuento_con_precio():
+    #         total += articulo.producto.descuento_con_precio() * articulo.cantidad
+    #         cantidad += articulo.cantidad
+    #     else:
+    #         total += articulo.producto.precio * articulo.cantidad
+    #         cantidad += articulo.cantidad
+    if request.method == 'POST':
+        serializer = PedidoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            
 
 def pago(request, id_pedido):
     pedido = get_object_or_404(Pedido, pk=id_pedido)
@@ -135,3 +164,6 @@ def actualizar_stock(request):
         producto.stock -= articulo.cantidad
         producto.save()
         articulo.delete()  # Eliminar los productos del carrito
+
+
+# ? API

@@ -33,6 +33,6 @@ urlpatterns = [
     path("pedido/", include("pedido.urls")),
     
     # API
-    #  path("", views.productosAPIView),
+    #  path("", views.productosAPIView), = path("api/list_product/v1/", views.listProductAPIView),
     path("api/list_product/v1/", views.listProductAPIView),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
