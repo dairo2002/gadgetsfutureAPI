@@ -1,23 +1,4 @@
 {% load static %}
-<!-- 
-
-<header class="bg_header text-dark">
-  <div class="container">
-    <div class="d-flex justify-content-between py-2">
-      <div>
-        <i class="fa-solid fa-truck-fast fa-lg"></i>
-        <span class="">Pedidos nacionales</span>
-      </div>
-      <div class="d-flex align-items-center gap-4">
-        <a href="" class=""><i class="fa-brands fa-whatsapp fa-xl" style="color: #000000;"></i></a>
-        <a href="" class=""><i class="fa-brands fa-facebook fa-xl" style="color: #000000;"></i></a>
-        <a href="" class=""><i class="fa-brands fa-instagram fa-xl" style="color: #000000;"></i></a>
-      </div>
-    </div>
-  </div>
-</header>
--->
-
 <nav class="navbar navbar-expand-lg bg-nav sticky-top">
   <div class="container my-1">
     <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'img/logo.svg' %}" alt="logo" width="180px" /></a>
@@ -52,9 +33,6 @@
                 <ul class="list-unstyled">
                     <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      <!--
-                        <i class="fa-solid fa-gear fa-xl"></i>    
-                        --> 
                         <i class="fa-regular fa-user fa-lg icon-user"></i>
                     </a>
                       <ul class="dropdown-menu">
@@ -76,9 +54,6 @@
                 <ul class="list-unstyled">
                     <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      <!--
-                        <i class="fa-solid fa-gear fa-xl"></i>    
-                        --> 
                         <i class="fa-regular fa-user fa-lg icon-user"></i>
                     </a>
                       <ul class="dropdown-menu">
@@ -92,16 +67,14 @@
                       </ul>
                     </li>
                   </ul>            
-                <!-- <a href="{% url 'inicio_sesion' %}" class="text-decoration-none text-dark">Iniciar Sesión</a> <span class="">|</span>
-                <a href="{% url 'registrarse' %}" class="text-decoration-none text-dark">Registrarse</a> -->
             </div>
           {% endif %}
         </div>
 
-        <button class="btn btn_carrito d-flex flex-column align-items-center p-0 btn_carrito" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+        <a href="{% url 'mostrar_carrito' %}" class="btn btn_carrito d-flex flex-column align-items-center p-0 btn_carrito">
           <span class="badge rounded-5" style="font-size: 16px; color: #15359B;">{{ contar_productos }}</span>
           <i class="fa-solid fa-cart-arrow-down fa-xl icon-carrito"></i>
-        </button>
+        </a>
       </div>
     </div>
   </div>
@@ -122,4 +95,4 @@
   </div>
 </div>
 
-{% include 'tienda/canvasCarrito.html' %}
+{% comment %} {% include 'tienda/canvasCarrito.html' %} {% endcomment %}

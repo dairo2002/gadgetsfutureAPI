@@ -30,12 +30,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 
-# CORS_ALLOWED_ORIGINS = [
-# "http://127.0.0.1:5500",
-# "http://localhost:5500"
-# ]
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -92,9 +86,9 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "tienda.context_processors.enlaces_categorias",
-                # "tienda.context_processors.rango_precios",
-                "carrito.context_processors.mostrar_carrito",
                 "carrito.context_processors.contar_productos",
+                "carrito.context_processors.mostrar_carrito",
+                # "tienda.context_processors.rango_precios",
                 # "carrito.context_processors.descuento",
             ],
         },

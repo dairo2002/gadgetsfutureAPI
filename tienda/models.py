@@ -47,20 +47,11 @@ class Producto(models.Model):
     def get_url_producto(self):
         return reverse("detalle_producto", args=[self.categoria.slug, self.slug])
 
-    # ? Consultar explicacion de formado de precio
-    # Hacer pruebas con la operaciones de carrito
-    # Hacer pruebas con descuentos
-    # Mirar como se estan guardando el precio de los pagos
-    # Crear un solo metodo que sirva para el precio original y descuento
-
     # return "{:,.0f}".format(self.precio).replace(",", ".")
     # locale.setlocale(locale.LC_ALL,'es_CO.UTF-8')
     # return locale.currency(self.precio, grouping=True)
 
     def aplicar_descuento(self):
-        # Precio formateado a la moneda colombiana
-        locale.setlocale(locale.LC_ALL, "es_CO")
-
         if (
             self.categoria.descuento
             and self.categoria.fecha_inicio
@@ -69,35 +60,50 @@ class Producto(models.Model):
 
             fecha_actual = timezone.now()
             if self.categoria.fecha_inicio <= fecha_actual <= self.categoria.fecha_fin:
-                descuento_decimal = 1 - decimal.Decimal(self.categoria.descuento / 100)
-                # descuento_decimal = 1 - (self.categoria.descuento / 100)
-                descuento = self.precio * descuento_decimal
-
-                # precio_formateado = locale.currency(self.precio, grouping=True)
-                descuento_formateado = locale.currency(descuento, grouping=True)
-                return descuento_formateado
+                descuento_decimal = 1 - self.categoria.descuento / 100
+                descuento = self.precio * descuento_decimal            
+                return descuento
             else:
                 # Si la fecha actual está fuera del rango de fechas de descuento, limpiar los campos relacionados con el descuento
                 self.categoria.descuento = None
                 self.categoria.fecha_inicio = None
                 self.categoria.fecha_fin = None
-                self.categoria.save()
-                precio_formateado = locale.currency(self.precio, grouping=True)
-                return precio_formateado
-        else:
-            precio_formateado = locale.currency(self.precio, grouping=True)
-            return precio_formateado
+                self.categoria.save()            
+                return self.precio
+        return self.precio
+        
+    # ? Otra moneda colombiana   
+    # def aplicar_descuento(self):
+    #     # Precio formateado a la moneda colombiana
+    #     locale.setlocale(locale.LC_ALL, "es_CO")
 
-    def operacion_descuento(self):
-        locale.setlocale(locale.LC_ALL, "es_CO")
-        if self.categoria.descuento is not None:
-            descuento_decimal = 1 - self.categoria.descuento / 100
-            # descuento_decimal = 1 - (self.categoria.descuento / 100)
-            descuento = self.precio * descuento_decimal
-            descuento_formateado = locale.currency(descuento, grouping=True)
-            return descuento_formateado
-        else:
-            return "descuento no definido"
+    #     if (
+    #         self.categoria.descuento
+    #         and self.categoria.fecha_inicio
+    #         and self.categoria.fecha_fin
+    #     ):
+
+    #         fecha_actual = timezone.now()
+    #         if self.categoria.fecha_inicio <= fecha_actual <= self.categoria.fecha_fin:
+    #             descuento_decimal = 1 - decimal.Decimal(self.categoria.descuento / 100)
+    #             # descuento_decimal = 1 - (self.categoria.descuento / 100)
+    #             descuento = self.precio * descuento_decimal
+
+    #             # precio_formateado = locale.currency(self.precio, grouping=True)
+    #             descuento_formateado = locale.currency(descuento, grouping=True)
+    #             return descuento_formateado
+    #         else:
+    #             # Si la fecha actual está fuera del rango de fechas de descuento, limpiar los campos relacionados con el descuento
+    #             self.categoria.descuento = None
+    #             self.categoria.fecha_inicio = None
+    #             self.categoria.fecha_fin = None
+    #             self.categoria.save()
+    #             precio_formateado = locale.currency(self.precio, grouping=True)
+    #             return precio_formateado
+    #     else:
+    #         precio_formateado = locale.currency(self.precio, grouping=True)
+    #         return precio_formateado
+
 
     # def aplicar_descuento(self):
     #     # Precio formateado a la moneda colombiana
@@ -131,6 +137,8 @@ class Producto(models.Model):
     #         descuento_formateado = locale.currency(descuento, grouping=True)
     #         return precio_formateado
 
+
+    # ? Ejemplo hecho por el instructor
     # def descuento_con_precio(self):
     #     # Verificar si la categoría tiene un descuento y si las fechas de inicio y fin están definidas
     #     if (

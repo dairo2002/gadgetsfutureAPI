@@ -44,7 +44,7 @@
                   {% if producto_unico.stock <= 0 %}
                   <h4><span class="badge text-bg-danger mt-3 mx-auto">Agotado</span></h4>
                   {% else %}
-                    <a href="{% url 'add_carrito' producto_unico.id %}" class="btn btn-outline-secondary mt-2">Agregar al carrito</a>
+                    <a href="{% url 'add_carrito' producto_unico.id %}" class="btn btn-outline-dark mt-2">Agregar al carrito</a>
                   {% endif %}
                 </div>
               </div>
@@ -82,7 +82,7 @@
                   {% if producto_unico.stock <= 0 %}
                   <h4><span class="badge text-bg-danger mt-3 mx-auto">Agotado</span></h4>
                   {% else %}
-                    <a href="{% url 'add_carrito' producto_unico.id %}" class="btn btn-outline-secondary mt-2">Agregar al carrito</a>
+                    <a href="{% url 'add_carrito' producto_unico.id %}" class="btn btn-outline-dark mt-2">Agregar al carrito</a>
                   {% endif %}
                 </div>
               </div>

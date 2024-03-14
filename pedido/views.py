@@ -35,8 +35,8 @@ def realizar_pedido(request, total=0, cantidad=0):
         return redirect("tienda")
 
     for articulo in carrito:
-        if articulo.producto.descuento_con_precio():
-            total += articulo.producto.descuento_con_precio() * articulo.cantidad
+        if articulo.producto.aplicar_descuento():
+            total += articulo.producto.aplicar_descuento() * articulo.cantidad
             cantidad += articulo.cantidad
         else:
             total += articulo.producto.precio * articulo.cantidad

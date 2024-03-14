@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from tienda.models import Producto
 from .models import CarritoSesion, Carrito
 from django.urls import resolve
-
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.utils import timezone
 import locale, decimal
@@ -18,44 +18,59 @@ def _carrito_sesion(request):
         # Devolver la clave de sesión (puede ser la existente o la recién creada)
     return carrito
 
+
 # ! Corregir
 def add_carrito(request, producto_id):
     current_user = request.user
     producto = Producto.objects.get(id=producto_id)
 
     if current_user.is_authenticated:
-        carrito_existente = Carrito.objects.filter(producto=producto, usuario=current_user).exists()
+        carrito_existente = Carrito.objects.filter(
+            producto=producto, usuario=current_user
+        ).exists()
         if carrito_existente:
             carrito = Carrito.objects.get(producto=producto, usuario=current_user)
             carrito.cantidad += 1
-            carrito.save()         
+            carrito.save()
         else:
-            carrito = Carrito.objects.create(producto=producto, cantidad=1, usuario=current_user)
+            carrito = Carrito.objects.create(
+                producto=producto, cantidad=1, usuario=current_user
+            )
 
-    else:                       
+    else:
         try:
-            session = CarritoSesion.objects.get(carrito_session=_carrito_sesion(request))
+            session = CarritoSesion.objects.get(
+                carrito_session=_carrito_sesion(request)
+            )
         except CarritoSesion.DoesNotExist:
-            session = CarritoSesion.objects.create(carrito_session=_carrito_sesion(request))
+            session = CarritoSesion.objects.create(
+                carrito_session=_carrito_sesion(request)
+            )
         session.save()
 
-        carrito_existente = Carrito.objects.filter(producto=producto, carritoSesion=session).exists()
+        carrito_existente = Carrito.objects.filter(
+            producto=producto, carritoSesion=session
+        ).exists()
 
         if carrito_existente:
             carrito = Carrito.objects.get(producto=producto, carritoSesion=session)
             carrito.cantidad += 1
-            carrito.save()         
+            carrito.save()
         else:
-            carrito = Carrito.objects.create(producto=producto, cantidad=1, carritoSesion=session)
-    
-    return redirect('mostrar_carrito')
+            carrito = Carrito.objects.create(
+                producto=producto, cantidad=1, carritoSesion=session
+            )
 
-
-
+    return redirect("mostrar_carrito")
 
 
 # Vista que va hacia el carrito
+
+
 def mostrar_carrito(request):
+    # Renderizamos la pagina, para dar una ruta
+    # la Funcionalidad esta en el context_proccesor
+    # Al esta en el context_proccesor nos permite visualizar los productos de carrito en varias vistas  
     return render(request, "tienda/carrito.html")
 
 

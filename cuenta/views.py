@@ -98,7 +98,7 @@ def inicio_sesion(request):
         # Verificar si hay un producto en el carrito existente y asociarlo al usuario
         if usuarios is not None:
             try:
-                # Obtner la sesion del carrito
+                # Obtener la sesion del carrito
                 carrito_sesion = CarritoSesion.objects.get(
                     carrito_session=_carrito_sesion(request)
                 )
