@@ -79,7 +79,7 @@ def registrarse(request):
             return redirect("index")
     else:
         formulario = RegistroForms()
-    return render(request, "cuenta/registrarse.html", {"form": formulario})
+    return render(request, "client/cuenta/registrarse.html", {"form": formulario})
 
 
 # ! Corregir
@@ -143,7 +143,7 @@ def inicio_sesion(request):
         else:
             messages.error(request, "Las credenciales son incorrectas")
             return redirect("inicio_sesion")
-    return render(request, "cuenta/inicio_sesion.html")
+    return render(request, "client/cuenta/inicio_sesion.html")
 
 
 @login_required(login_url="inicio_sesion")
@@ -189,7 +189,7 @@ def recuperar_password(request):
         else:
             messages.error(request, "La cuenta no existe!")
             return redirect("recuperar_password")
-    return render(request, "cuenta/recuperar_password.html")
+    return render(request, "client/cuenta/recuperar_password.html")
 
 
 # Datos obtenidos para ruta del email
@@ -228,7 +228,7 @@ def restablecer_password(request):
             messages.error(request, "Las contraseñas no coniciden")
             return redirect("restablecer_password")
     else:
-        return render(request, "cuenta/restablecer_password.html")
+        return render(request, "client/cuenta/restablecer_password.html")
 
 
 # ? APIS

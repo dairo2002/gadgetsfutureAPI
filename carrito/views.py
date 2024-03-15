@@ -71,7 +71,7 @@ def mostrar_carrito(request):
     # Renderizamos la pagina, para dar una ruta
     # la Funcionalidad esta en el context_proccesor
     # Al esta en el context_proccesor nos permite visualizar los productos de carrito en varias vistas  
-    return render(request, "tienda/carrito.html")
+    return render(request, "client/tienda/carrito.html")
 
 
 # Eliminar un producto por la cantidad

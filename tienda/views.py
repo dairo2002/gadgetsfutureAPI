@@ -243,6 +243,7 @@ def storeAPIView(request, category_id=None):
             {"error": "No se encontro el producto con la categoria"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+    
 # def storeAPIView(request, category_slug=None):
 #     if category_slug is not None:
 #         categorias = get_object_or_404(Categoria, slug=category_slug)

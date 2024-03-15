@@ -17,7 +17,6 @@ urlpatterns = [
     path("filtro_precio/", views.filtro_rango_precios, name="filtro_precios"),
     path("valoracion/<int:producto_id>/", views.valoracion, name="valoraciones"),
     # *   API
-    # path("api/store/v1/", views.storeAPIView), # Corregir si nos puede servir
     path(
         "categorias/api/category/v1/", views.categoryAPIView
     ),  # Corregir si nos puede servir
