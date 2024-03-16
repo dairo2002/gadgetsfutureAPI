@@ -95,55 +95,84 @@ def inicio_sesion(request):
             correo_electronico=correo_electronico, password=password
         )
 
-        # Verificar si hay un producto en el carrito existente y asociarlo al usuario
+        # usuarios = Cuenta()
+
         if usuarios is not None:
-            try:
-                # Obtener la sesion del carrito
-                carrito_sesion = CarritoSesion.objects.get(
-                    carrito_session=_carrito_sesion(request)
-                )
+            if usuarios.is_active:
+                if usuarios.is_admin and usuarios.is_staff:
+                    print("admin ",usuarios.is_admin and usuarios.is_staff)
+                    auth.login(request, usuarios)
+                    messages.success(
+                        request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
+                    )
+                    return redirect("panel_admin")
 
-                carrito_existe = Carrito.objects.filter(
-                    carritoSesion=carrito_sesion
-                ).exists()
-
-                if carrito_existe:
-                    carrito = Carrito.objects.filter(carritoSesion=carrito_sesion)
-                    for articulo in carrito:
-                        articulo.usuario = usuarios
-                        articulo.save()
-                # else:
-                #     if carrito_existe:
-                #         carrito = Carrito.objects.get(producto=producto, carritoSesion=carrito_sesion)
-                #         carrito.cantidad += 1
-                #         carrito.save()         
-                #     else:
-                #         carrito = Carrito.objects.create(producto=producto, cantidad=1, carritoSesion=carrito_sesion)
-            except Exception as e:
-                print(f"Error: ", {e})
-
-            # Establece la sesion al usuario
-            auth.login(request, usuarios)
-            messages.success(
-                request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
-            )
-            # Creamos la ruta para que nos redirija a pedidos en caso tal que quiera hacer un pedido
-            url = request.META.get("HTTP_REFERER")
-            try:
-                consulta = requests.utils.urlparse(url).query
-                print("Consulta", consulta)
-                params = dict(x.split("=") for x in consulta.split("&"))
-                print("Parametro: ", params)
-                if "next" in params:
-                    nextPage = params["next"]
-                    return redirect(nextPage)
-            except:
-                # si no a la pagina de inicio
-                return redirect("index")
+                else:
+                    auth.login(request, usuarios)
+                    messages.success(
+                        request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
+                    )
+                    return redirect("index")
+            else:
+                messages.error(request, "Tu cuenta está desactivada.")
         else:
-            messages.error(request, "Las credenciales son incorrectas")
+            messages.error(request, "Credenciales incorrectas")
             return redirect("inicio_sesion")
+
+            """if usuarios.is_active:        
+                auth.login(request, usuarios)
+                messages.success(
+                    request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
+                )
+                return redirect("panel_admin")
+
+            else:        
+                messages.error(request, "Tu cuenta está desactivada")
+                return redirect("inicio_sesion")                            
+            
+        else:
+            messages.error(request, "Credenciales incorrectas")
+            return redirect("inicio_sesion")"""
     return render(request, "client/cuenta/inicio_sesion.html")
+
+    # Verificar si hay un producto en el carrito existente y asociarlo al usuario
+    """if usuarios is not None:
+        try:
+            # Obtener la sesion del carrito
+            carrito_sesion = CarritoSesion.objects.get(
+                carrito_session=_carrito_sesion(request)
+            )
+            carrito_existe = Carrito.objects.filter(
+                carritoSesion=carrito_sesion
+            ).exists()
+            if carrito_existe:
+                carrito = Carrito.objects.filter(carritoSesion=carrito_sesion)
+                for articulo in carrito:
+                    articulo.usuario = usuarios
+                    articulo.save()
+        except Exception as e:
+            print(f"Error: ", {e})
+        # Establece la sesion al usuario
+        auth.login(request, usuarios)
+        messages.success(
+        request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
+        )
+        # Creamos la ruta para que nos redirija a pedidos en caso tal que quiera hacer un pedido
+        url = request.META.get("HTTP_REFERER")
+        try:
+            consulta = requests.utils.urlparse(url).query
+            print("Consulta", consulta)
+            params = dict(x.split("=") for x in consulta.split("&"))
+            print("Parametro: ", params)
+            if "next" in params:
+                nextPage = params["next"]
+                return redirect(nextPage)
+        except:                    
+            return redirect("index")
+    else:
+        messages.error(request, "Las credenciales son incorrectas")
+        return redirect("inicio_sesion")
+        return render(request, "client/cuenta/inicio_sesion.html")"""
 
 
 @login_required(login_url="inicio_sesion")

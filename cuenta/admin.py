@@ -19,7 +19,8 @@ class CuentaAdmin(UserAdmin):
     list_display_links = ("correo_electronico", "username")  # Campos con link
     readonly_fields = ("inicio_acceso", "ultimo_acceso")  # Campos solo lectura
     filter_horizontal = ()  # Filtro horizontal
-    list_filter = ["is_active", "is_superadmin"]
+    list_filter = ["is_active"]
+    # list_filter = ["is_active", "is_superadmin"]
     search_fields = ["nombre", "correo_electronico"]  # Toma estos campos como busqueda
     fieldsets = ()
 

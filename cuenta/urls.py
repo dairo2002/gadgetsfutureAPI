@@ -14,7 +14,7 @@ urlpatterns = [
     path(
         "restablecer_password/", views.restablecer_password, name="restablecer_password"
     ),
-
+    
     # API
     path("api/signup/v1/", views.signupAPIView),
     path("api/login/v1/", views.loginAPIView),

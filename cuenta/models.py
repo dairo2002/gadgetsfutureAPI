@@ -8,6 +8,7 @@ from django.utils import timezone
 
 
 class ManejardorCuenta(BaseUserManager):
+    # Crear un usuario normal
     def create_user(
         self, nombre, apellido, username, correo_electronico, password=None
     ):
@@ -18,8 +19,8 @@ class ManejardorCuenta(BaseUserManager):
         if not username:
             raise ValueError("El usuario debe tener un nombre de usuario")
 
-        # Crear un objeto de usuario con datos normalizados
-        usuarios = self.model(
+        # Crear un objeto de usuario
+        user = self.model(
             # normalize_email Convierte la direccion de correo a minusculas y elimina espacios
             correo_electronico=self.normalize_email(correo_electronico),
             username=username,
@@ -28,16 +29,16 @@ class ManejardorCuenta(BaseUserManager):
         )
 
         # Establecer la contraseña y guardar el usuario en la base de datos
-        usuarios.set_password(password)
-        usuarios.save(using=self._db)
-        return usuarios
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-    # Método para crear un superusuario con privilegios especiales
+    # Método para crear un superusuario, el administrador
     def create_superuser(
         self, nombre, apellido, username, correo_electronico, password
     ):
         # Utilizar el método create_user para crear un superusuario
-        usuarios = self.create_user(
+        user = self.create_user(
             correo_electronico=self.normalize_email(correo_electronico),
             username=username,
             password=password,
@@ -46,12 +47,11 @@ class ManejardorCuenta(BaseUserManager):
         )
 
         # Establecer permisos y características especiales para el superusuario
-        usuarios.is_admin = True
-        usuarios.is_staff = True
-        usuarios.is_active = True
-        usuarios.is_superadmin = True
-        usuarios.save(using=self._db)
-        return usuarios
+        user.is_admin = True
+        user.is_active = True
+        user.is_staff = True
+        user.save(using=self._db)
+        return user
 
 
 # Creamos el modelo de usuario personalizado que hereda de AbstractBaseUser
@@ -65,14 +65,11 @@ class Cuenta(AbstractBaseUser):
     # Permisos campos requeridos
     inicio_acceso = models.DateField(default=timezone.now)
     ultimo_acceso = models.DateField(default=timezone.now)
-    # Algunos campos son creados en ingles para no tener error al hacer las migraciones
+    # Falso se activa cuando creamos el usuario administrador
+    is_staff = models.BooleanField(default=False, verbose_name="usuario")
     is_admin = models.BooleanField(default=False, verbose_name="Administrador")
-    is_staff = models.BooleanField(default=False, verbose_name="Personal")
-    # Por defecto activo sea administrador o usuario
+    # Por defecto activo sea administrador o el usuario
     is_active = models.BooleanField(default=True, verbose_name="Actvio")
-    is_superadmin = models.BooleanField(
-        default=False, verbose_name="Super Administrador"
-    )
 
     # Campo con el que debe iniciar sesion el administrador
     USERNAME_FIELD = "correo_electronico"
@@ -84,11 +81,24 @@ class Cuenta(AbstractBaseUser):
     def __str__(self):
         return self.correo_electronico
 
+    # Permiso para el administrador
     def has_perm(self, perm, obj=None):
-        return self.is_admin
+        return  self.is_admin
+        # if perm == self.is_staff:
+        #     return self.is_admin
+        # elif perm == self.is_admin:
+        #     return False
+        # Si el permiso no es específicamente para administrador, delegar la verificación al método has_perm de la clase base
+        # return super().has_perm(perm, obj)
 
+    # Permisos a todos los modulos de la aplicacion
     def has_module_perms(self, add_label):
         return True
+        # Si el usuario es admin
+        # if self.is_admin:
+        # es admin, tiene todo los permisos
+        # return False
+    
 
     def usuario_nombre_completo(self):
         return f"{self.nombre} {self.apellido}"
