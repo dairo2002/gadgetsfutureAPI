@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .models import Producto, Categoria, Valoraciones
 from pedido.models import Pedido
 from carrito.models import Carrito, CarritoSesion
 from carrito.views import _carrito_sesion
 from django.contrib import messages
-from .forms import ValoracionesForm
+from .forms import ValoracionesForm, ProductoForm
 
 # Q es utilizado para consultas complejas
 from django.db.models import Q
@@ -47,9 +48,10 @@ def tienda(request, categoria_slug=None):
         pagina_producto = paginacion.get_page(pagina_numero)
     return render(
         request,
-        "tienda/tienda.html",
+        "client/tienda/tienda.html",
         {"producto": pagina_producto, "contador_producto": contar_productos},
     )
+
 
 # Tienda un producto unico hacia su detalle
 def detalle_producto(request, categoria_slug, producto_slug):
@@ -81,7 +83,7 @@ def detalle_producto(request, categoria_slug, producto_slug):
 
     return render(
         request,
-        "tienda/detalle_producto.html",
+        "client/tienda/detalle_producto.html",
         {
             "producto_unico": producto_unico,
             "review": reviews,
@@ -110,17 +112,18 @@ def filtro_buscar_producto(request):
             # Contador de productos encontrados
             contar_productos = palabra_busqueda.count()
             if contar_productos == 0:
+                # messages.error(request, f"No se encontraron productos que coincidan con la palabra {txtBusqueda}")
                 return render(
                     request,
-                    "tienda/tienda.html",
+                    "client/tienda/tienda.html",
                     {
-                        "error_busqueda": "No se encontraron productos que coincidan con la palabra"
+                        "error_busqueda": f"No se encontraron productos que coincidan con la palabra {txtBusqueda}"
                     },
                 )
     # El metodo va a la esta vista tienda.html. por que la vista del navbar.html es incluida en el HTML base, por lo tanto no tiene ruta
     return render(
         request,
-        "tienda/tienda.html",
+        "client/tienda/tienda.html",
         {
             "producto": palabra_busqueda,
             "contador_producto": contar_productos,
@@ -131,6 +134,7 @@ def filtro_buscar_producto(request):
 
 # ? Corregir que el filtro pueda buscar con decimales, Tambien la API
 def filtro_rango_precios(request):
+
     try:
         precio_minimo = float(request.POST.get("min_precio"))
         precio_maximo = float(request.POST.get("max_precio"))
@@ -138,7 +142,7 @@ def filtro_rango_precios(request):
         # Mostrar mensaje de error al usuario
         return render(
             request,
-            "tienda/tienda.html",
+            "client/tienda/tienda.html",
             {"error_precio": "Los valores de precio son inválidos"},
         )
 
@@ -153,12 +157,12 @@ def filtro_rango_precios(request):
     else:
         return render(
             request,
-            "tienda/tienda.html",
+            "client/tienda/tienda.html",
             {"error_precio": "Los valores de precio deben ser números"},
         )
     return render(
         request,
-        "tienda/tienda.html",
+        "client/tienda/tienda.html",
         {"filtro_precio": productos, "contador_producto": contar_productos},
     )
 
@@ -230,6 +234,7 @@ def categoryAPIView(request):
     serializer = CategoriaSerializer(queryset, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 #  Me trae los productos de una categoría
 @api_view(["GET"])
 def storeAPIView(request, category_id=None):
@@ -243,7 +248,8 @@ def storeAPIView(request, category_id=None):
             {"error": "No se encontro el producto con la categoria"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    
+
+
 # Detalle de un unico producto
 @api_view(["GET"])
 def detail_productAPIView(request, category_slug, product_slug):
@@ -259,7 +265,7 @@ def detail_productAPIView(request, category_slug, product_slug):
             {"error": "Lista de productos no encontrado"},
             status=status.HTTP_404_NOT_FOUND,
         )
-    
+
 
 @api_view(["GET"])
 def detail_productAPIView2(request, category_id, product_id):
@@ -276,6 +282,7 @@ def detail_productAPIView2(request, category_id, product_id):
             status=status.HTTP_404_NOT_FOUND,
         )
 
+
 @api_view(["GET"])
 def detail_productsAPIView(request, product_id):
     try:
@@ -288,6 +295,7 @@ def detail_productsAPIView(request, product_id):
             {"error": "Lista de productos no encontrado"},
             status=status.HTTP_404_NOT_FOUND,
         )
+
 
 # Buscador de un producto
 @api_view(["POST"])
@@ -314,10 +322,31 @@ def searchProductAPIView(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
 # ? Admin
-def lista_productos(request):
-    return render(request, "admin/form_producto.html")
+# @login_required(login_url="inicio_sesion")
+def agregar_productos(request):
+    if request.method == "POST":
+        form = ProductoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Producto agregado")            
+            form = ProductoForm()
+        else:
+            messages.error(request, "Ha ocurrido un error en el formulario, intenta agregar otra vez el producto")
+    else:
+        form = ProductoForm()
+    return render(request, "admin/productos/form_producto.html", {"form": form})
 
+@login_required(login_url="inicio_sesion")
+def listar_productos(request):
+    queryset = Producto.objects.all()
+
+    agregar_productos(request)
+    return render(request, "admin/productos/form_producto.html", {"producto": queryset}) 
+
+
+
+
+@login_required(login_url="inicio_sesion")
 def lista_categorias(request):
     return render(request, "admin/form_categoria.html")

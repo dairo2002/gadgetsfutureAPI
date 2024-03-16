@@ -4,6 +4,10 @@ from decimal import Decimal
 from django.utils import timezone
 from cuenta.models import Cuenta
 from django.db.models import Count, Avg
+from django.dispatch import receiver
+from django.utils.text import slugify
+from django.db.models.signals import pre_save
+from django.core.validators import FileExtensionValidator
 
 import locale, decimal
 
@@ -37,7 +41,8 @@ class Producto(models.Model):
     descripcion = models.TextField(max_length=500, blank=True)
     precio = models.DecimalField(max_digits=12, decimal_places=2)
     stock = models.IntegerField()
-    imagen = models.ImageField(upload_to="productos/")
+    # FileExtensionValidator permite cargar imagenes con la extencion especifica que pasamos
+    imagen = models.ImageField(upload_to="productos/", validators=[FileExtensionValidator(allowed_extensions=["jpg","png"])])
     disponible = models.BooleanField(default=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
 
@@ -46,10 +51,7 @@ class Producto(models.Model):
 
     def get_url_producto(self):
         return reverse("detalle_producto", args=[self.categoria.slug, self.slug])
-
-    # return "{:,.0f}".format(self.precio).replace(",", ".")
-    # locale.setlocale(locale.LC_ALL,'es_CO.UTF-8')
-    # return locale.currency(self.precio, grouping=True)
+    
 
     def aplicar_descuento(self):
         if (
@@ -57,7 +59,6 @@ class Producto(models.Model):
             and self.categoria.fecha_inicio
             and self.categoria.fecha_fin
         ):
-
             fecha_actual = timezone.now()
             if self.categoria.fecha_inicio <= fecha_actual <= self.categoria.fecha_fin:
                 descuento_decimal = 1 - self.categoria.descuento / 100
@@ -71,72 +72,20 @@ class Producto(models.Model):
                 self.categoria.save()            
                 return self.precio
         return self.precio
-        
-    # ? Otra moneda colombiana   
-    # def aplicar_descuento(self):
-    #     # Precio formateado a la moneda colombiana
-    #     locale.setlocale(locale.LC_ALL, "es_CO")
 
-    #     if (
-    #         self.categoria.descuento
-    #         and self.categoria.fecha_inicio
-    #         and self.categoria.fecha_fin
-    #     ):
-
-    #         fecha_actual = timezone.now()
-    #         if self.categoria.fecha_inicio <= fecha_actual <= self.categoria.fecha_fin:
-    #             descuento_decimal = 1 - decimal.Decimal(self.categoria.descuento / 100)
-    #             # descuento_decimal = 1 - (self.categoria.descuento / 100)
-    #             descuento = self.precio * descuento_decimal
-
-    #             # precio_formateado = locale.currency(self.precio, grouping=True)
-    #             descuento_formateado = locale.currency(descuento, grouping=True)
-    #             return descuento_formateado
-    #         else:
-    #             # Si la fecha actual está fuera del rango de fechas de descuento, limpiar los campos relacionados con el descuento
-    #             self.categoria.descuento = None
-    #             self.categoria.fecha_inicio = None
-    #             self.categoria.fecha_fin = None
-    #             self.categoria.save()
-    #             precio_formateado = locale.currency(self.precio, grouping=True)
-    #             return precio_formateado
-    #     else:
-    #         precio_formateado = locale.currency(self.precio, grouping=True)
-    #         return precio_formateado
+# se ejecuta antes de que el objecto llege a la DB 
+@receiver(pre_save, sender=Producto)
+def _post_save_receiver(sender, instance, **kwargs):
+    if not instance.slug:
+        instance.slug = slugify(instance.nombre)
 
 
-    # def aplicar_descuento(self):
-    #     # Precio formateado a la moneda colombiana
-    #     locale.setlocale(locale.LC_ALL, "es_CO")
 
-    #     if (
-    #         self.categoria.descuento
-    #         and self.categoria.fecha_inicio
-    #         and self.categoria.fecha_fin
-    #     ):
 
-    #         fecha_actual = timezone.now()
-    #         if self.categoria.fecha_inicio <= fecha_actual and self.categoria.fecha_fin:
-    #             descuento_decimal = 1 - (self.categoria.descuento / 100)
-    #             descuento = self.precio * descuento_decimal
-
-    #             precio_formateado = locale.currency(self.precio, grouping=True)
-    #             descuento_formateado = locale.currency(descuento, grouping=True)
-
-    #             return descuento_formateado, precio_formateado
-    #         else:
-    #             # Si la fecha actual está fuera del rango de fechas de descuento, limpiar los campos relacionados con el descuento
-    #             self.categoria.descuento = None
-    #             self.categoria.fecha_inicio = None
-    #             self.categoria.fecha_fin = None
-    #             self.categoria.save()
-
-    #             precio_formateado = locale.currency(self.precio, grouping=True)
-    #             return  descuento_formateado
-    #     else:
-    #         descuento_formateado = locale.currency(descuento, grouping=True)
-    #         return precio_formateado
-
+    # ! Moneda colombiana
+    # return "{:,.0f}".format(self.precio).replace(",", ".")
+    # locale.setlocale(locale.LC_ALL,'es_CO.UTF-8')
+    # return locale.currency(self.precio, grouping=True)
 
     # ? Ejemplo hecho por el instructor
     # def descuento_con_precio(self):
