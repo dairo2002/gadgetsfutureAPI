@@ -16,6 +16,8 @@ urlpatterns = [
     path("buscar/", views.filtro_buscar_producto, name="buscar_producto"),
     path("filtro_precio/", views.filtro_rango_precios, name="filtro_precios"),
     path("valoracion/<int:producto_id>/", views.valoracion, name="valoraciones"),
+
+
     # *   API
     path(
         "categorias/api/category/v1/", views.categoryAPIView
@@ -28,16 +30,12 @@ urlpatterns = [
     path("api/range_price/v1/", views.range_priceAPIView),
 
     # ? FORMAS DE IR AL DETALLE DE UN PRODUCTO
-    path(
-        "categoria/api/detail_product/v1/<slug:category_slug>/<slug:product_slug>/",
-        views.detail_productAPIView,
-    ),
-    path(
-        "categoria/api/detail_products/v1/<int:category_id>/<int:product_id>/",
-        views.detail_productAPIView2,
-    ),
-    path(
-        "categoria/api/detail_products/v1/<int:product_id>/",
-        views.detail_productsAPIView,
-    ),
+    path("categoria/api/detail_product/v1/<slug:category_slug>/<slug:product_slug>/",views.detail_productAPIView,),
+    path("categoria/api/detail_products/v1/<int:category_id>/<int:product_id>/",views.detail_productAPIView2,),
+    path( "categoria/api/detail_products/v1/<int:product_id>/",views.detail_productsAPIView,),
+
+    # ? ADMIN
+     path("admin/productos/", views.lista_productos, name="lista_productos"),
+     path("admin/categorias/", views.lista_categorias, name="lista_categorias"),
+
 ]

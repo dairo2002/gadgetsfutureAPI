@@ -1,0 +1,50 @@
+{% load static %}
+<div class="text-secondary bg-nav">
+    <div class="container my-4 d-lg-flex align-items-center text-center gap-2">
+      <a class="navbar-brand" href="{% url 'panel_admin' %}"><img src="{% static 'img/logo.svg' %}" alt="logo" width="180px" /></a>
+      <ul class="nav mb-2 mb-lg-0 colors-texto">
+        <li class="nav-item">
+          <a class="nav-link" href="#">Compras</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'lista_productos' %}">Productos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'lista_categorias' %}">Categorías</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Usuarios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Pedido</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Pagos</a>
+        </li>
+    </ul>
+    <li class="d-flex align-items-center ustify-content-end me-auto ">
+      {% if user.is_authenticated %}
+        <p class="py-0 my-0 ">
+          Bienvenido <strong>{{ user.correo_electronico }}</strong>
+        </p>
+      {% endif %}
+    </li>
+    <li class="nav-item dropdown list-unstyled">
+      <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-gear fa-lg"></i></a>
+      <ul class="dropdown-menu">
+        <li>
+          <a class="dropdown-item" href="#">Cerrar sesión</a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="#">Another action</a>
+        </li>
+        <li>
+          <hr class="dropdown-divider" />
+        </li>
+        <li>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </li>
+      </ul>
+    </li>
+    </div>
+  </div>

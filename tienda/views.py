@@ -244,20 +244,6 @@ def storeAPIView(request, category_id=None):
             status=status.HTTP_400_BAD_REQUEST,
         )
     
-# def storeAPIView(request, category_slug=None):
-#     if category_slug is not None:
-#         categorias = get_object_or_404(Categoria, slug=category_slug)
-#         productos = Producto.objects.all().filter(categoria=categorias, disponible=True)
-#         serializer = ProductoSerializer(productos, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#     else:
-#         return Response(
-#             {"error": "No se encontro el producto con la categoria"},
-#             status=status.HTTP_400_BAD_REQUEST,
-#         )
-
-
-
 # Detalle de un unico producto
 @api_view(["GET"])
 def detail_productAPIView(request, category_slug, product_slug):
@@ -328,3 +314,10 @@ def searchProductAPIView(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+
+# ? Admin
+def lista_productos(request):
+    return render(request, "admin/form_producto.html")
+
+def lista_categorias(request):
+    return render(request, "admin/form_categoria.html")
