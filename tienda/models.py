@@ -14,7 +14,6 @@ import locale, decimal
 from django.template.defaultfilters import floatformat
 
 
-
 class Categoria(models.Model):
     nombre = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
@@ -59,12 +58,15 @@ class Producto(models.Model):
         return reverse("detalle_producto", args=[self.categoria.slug, self.slug])
 
     def precioFormatiado(self):
-        precio = "{:,}".format(self.precio).replace(',', '.')
+        # precio = "{:,}".format(self.precio).replace(',', '.')
+        # Eliminamos los dos 0 al final
+        precio = "{:,.0f}".format(self.precio).replace(',', '.')
         return precio
-    
+
     def descuentoFormatiado(self):
-        return "{:,}".format(self.aplicar_descuento()).replace(',', '.')
-    
+        # return "{:,}".format(self.aplicar_descuento()).replace(",", ".")
+        return "{:,.0f}".format(self.aplicar_descuento()).replace(",", ".")
+
     def aplicar_descuento(self):
         if (
             self.categoria.descuento
