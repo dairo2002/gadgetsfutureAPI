@@ -24,10 +24,10 @@
                 <form action="{% url 'filtro_precios' %}" method="POST" class="form_filtro_precio px-5">
                   {% csrf_token %}
                   <label for="">Mínimo</label>
-                  <input type="text" class="form-control" name="min_precio" placeholder="Precio mínimo" value="{{ request.GET.min_precio }}" />
+                  <input type="text" class="form-control" name="min_precio" placeholder="Precio mínimo" min="0" value="{{ request.GET.min_precio }}" />
                   <label for="">Máximo</label>
-                  <input type="text" class="form-control" name="max_precio" placeholder="Precio máximo" value="{{ request.GET.max_precio }}" />
-                  <button type="submit" class="btn btn-outline-primary mt-3 w-100">Aplicar</button>
+                  <input type="text" class="form-control" name="max_precio" placeholder="Precio máximo" min="0" value="{{ request.GET.max_precio }}" />                  
+                  <button type="submit" class="btn btn-outline-dark mt-3 w-100">Aplicar</button>
                 </form>
               </div>
             </div>
@@ -38,21 +38,25 @@
             <strong>{{ contador_producto }}</strong> Productos
           </p>
           <hr class="" />
+          {% comment %} <div class="w-25 my-2 mx-5 position-absolute top-0 end-0 z-1">
+            {% include 'client/include/alertas.html' %}
+          </div> {% endcomment %}
           <div class="card bg-body-tertiary pt-3 p-md-3">
             <div class="row">
-              <!-- Condicion del campo de busque de productos, si exite muestra el producto -->
               {% if producto %}
-                <!-- Se recorre Bucle for mostrando todos los productos, con sus expecificaciones -->
                 {% for productos in producto %}
                   {% if productos.categoria.descuento %}
                     <div class="col-10 col-md-6 col-xl-4 mb-4 mx-auto mx-md-0">
                       <div class="card h-100 border-1">
                         <div class="card-body tarjeta_productos">
-                          <a href="{{ productos.get_url_producto }}" class=""><img src="{{ productos.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" /></a>
+                          <a href="{{ productos.get_url_producto }}" class="">
+                            <span class="badge p-2 text-bg-success z-1 position-absolute rounded-5">{{ productos.porcentajeDescFormtiado }}%</span>
+                            <img src="{{ productos.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" />
+                          </a>
                           <h6 class="fw-semibold">{{ productos.nombre }}</h6>
-                          <span>$ {{ productos.descuento_con_precio }}</span>
+                          <span>$ {{ productos.descuentoFormatiado }}</span>
                           <del>
-                            <small class="text-muted mx-2">$ {{ productos.precio }}</small>
+                            <small class="text-muted mx-2">$ {{ productos.precioFormatiado }}</small>
                           </del>
                           <a href="{{ productos.get_url_producto }}" class="btn btn-outline-dark w-100 mt-2">Detalle producto</a>
                         </div>
@@ -64,7 +68,7 @@
                         <div class="card-body tarjeta_productos">
                           <a href="{{ productos.get_url_producto }}" class=""><img src="{{ productos.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" /></a>
                           <h6 class="fw-semibold">{{ productos.nombre }}</h6>
-                          <span>$ {{ productos.precio }}</span>
+                          <span>$ {{ productos.precioFormatiado }}</span>
                           <a href="{{ productos.get_url_producto }}" class="btn btn-outline-dark w-100 mt-2">Detalle producto</a>
                         </div>
                       </div>
@@ -78,11 +82,14 @@
                     <div class="col-10 col-md-6 col-xl-4 mb-4 mx-auto mx-md-0">
                       <div class="card h-100 border-1">
                         <div class="card-body tarjeta_productos">
-                          <a href="{{ filtro.get_url_producto }}" class=""><img src="{{ filtro.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" /></a>
+                          <a href="{{ filtro.get_url_producto }}" class="">
+                            <span class="badge p-2 text-bg-success z-1 position-absolute rounded-5">{{ filtro.porcentajeDescFormtiado }}%</span>
+                            <img src="{{ filtro.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" />
+                          </a>
                           <h6 class="fw-semibold">{{ filtro.nombre }}</h6>
-                          <span>$ {{ filtro.descuento_con_precio }}</span>
+                          <span>$ {{ filtro.descuentoFormatiado }}</span>
                           <del>
-                            <small class="text-muted mx-2">$ {{ filtro.precio }}</small>
+                            <small class="text-muted mx-2">$ {{ filtro.precioFormatiado }}</small>
                           </del>
                           <a href="{{ filtro.get_url_producto }}" class="btn btn-outline-dark w-100 mt-2">Detalle producto</a>
                         </div>
@@ -94,7 +101,7 @@
                         <div class="card-body tarjeta_productos">
                           <a href="{{ filtro.get_url_producto }}" class=""><img src="{{ filtro.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" /></a>
                           <h6 class="fw-semibold">{{ filtro.nombre }}</h6>
-                          <span>$ {{ filtro.precio }}</span>
+                          <span>$ {{ filtro.precioFormatiado }}</span>
                           <a href="{{ filtro.get_url_producto }}" class="btn btn-outline-dark w-100 mt-2">Detalle producto</a>
                         </div>
                       </div>
@@ -116,8 +123,8 @@
                 <!-- pagina anterior has_previous -->
                 {% if producto.has_previous %}
                   <li class="page-item">
-                    <!--                                                                                              número de la página anterior 
-                        - pagina, en la vista es llamado por el get                                                                                             -->
+                    <!--                                                                                               número de la página anterior 
+                        - pagina, en la vista es llamado por el get                                                                                              -->
                     <a class="page-link" href="?pagina={{ producto.previous_page_number }}">Anterior</a>
                   </li>
                 {% else %}
@@ -128,8 +135,8 @@
                 {% endif %}
 
                 {% for p in producto.paginator.page_range %}
-                  <!--                                                                                            Numeros de la paginacion 
-                Comprueba si el numero de la pagina es que corresponde                                                                                           -->
+                  <!--                                                                                             Numeros de la paginacion 
+                Comprueba si el numero de la pagina es que corresponde                                                                                            -->
                   {% if producto.number == p %}
                     <li class="page-item">
                       <a class="page-link" href="#">{{ p }}</a>

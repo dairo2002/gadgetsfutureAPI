@@ -59,13 +59,14 @@ class Producto(models.Model):
 
     def precioFormatiado(self):
         # precio = "{:,}".format(self.precio).replace(',', '.')
-        # Eliminamos los dos 0 al final
-        precio = "{:,.0f}".format(self.precio).replace(',', '.')
-        return precio
+        # 0f Elimina los dos 0 al final        
+        return "{:,.0f}".format(self.precio).replace(',', '.')
 
     def descuentoFormatiado(self):
-        # return "{:,}".format(self.aplicar_descuento()).replace(",", ".")
         return "{:,.0f}".format(self.aplicar_descuento()).replace(",", ".")
+    
+    def porcentajeDescFormtiado(self):
+        return "{:.0f}".format(self.categoria.descuento)
 
     def aplicar_descuento(self):
         if (

@@ -21,29 +21,26 @@ from .serializers import ProductoSerializer, CategoriaSerializer
 
 # Tienda de productos que pertenecen a una categoria
 def tienda(request, categoria_slug=None):
-    # Verificamos si se ha proporcionado un slug de categoría
     if categoria_slug is not None:
-        # Si hay un slug de categoría, obtenemos la categoría correspondiente o retornamos un error 404 si no existe
         categorias = get_object_or_404(Categoria, slug=categoria_slug)
-        # Filtramos los productos por la categoría seleccionada y que estén disponibles
-        productos = Producto.objects.all().filter(categoria=categorias, disponible=True)
-        # Contamos la cantidad total de productos en esta categoría
+        productos = (
+            Producto.objects.all()
+            .filter(categoria=categorias, disponible=True)
+            .order_by("nombre")
+        )
         contar_productos = productos.count()
 
         # ? Paginacion
-        # Configuramos la paginación con la cantidad total de productos
-        paginacion = Paginator(productos, len(productos))
-        # Obtenemos el número de la página actual desde los parámetros de la solicitud
+
+        paginacion = Paginator(productos, 6)
         pagina_numero = request.GET.get("pagina")
-        # Obtenemos la página de productos correspondiente
         pagina_producto = paginacion.get_page(pagina_numero)
 
     else:
         # Si no se proporciona un slug de categoría, mostramos todos los productos disponibles ordenados por ID
-        productos = Producto.objects.all().filter(disponible=True)
-        # Contamos la cantidad total de productos disponibles
+        productos = Producto.objects.all().filter(disponible=True).order_by("nombre")
         contar_productos = productos.count()
-        paginacion = Paginator(productos, 4)
+        paginacion = Paginator(productos, 9)
         pagina_numero = request.GET.get("pagina")
         pagina_producto = paginacion.get_page(pagina_numero)
     return render(
@@ -102,9 +99,6 @@ def filtro_buscar_producto(request):
 
         # Verificamos si la palabra clave no está vacía
         if txtBusqueda:
-            # icontains a un campo de texto en una consulta, la base de datos realizará una búsqueda que ignorará la distinción entre mayúsculas y minúsculas.
-            # Q en Django se utiliza para construir expresiones de consulta más complejas, especialmente cuando necesitas combinar condiciones con operadores
-            # Operador OR = ('|')
             palabra_busqueda = Producto.objects.filter(
                 Q(nombre__icontains=txtBusqueda) | Q(descripcion__icontains=txtBusqueda)
             )
@@ -134,32 +128,31 @@ def filtro_buscar_producto(request):
 
 # ? Corregir que el filtro pueda buscar con decimales, Tambien la API
 def filtro_rango_precios(request):
-
     try:
-        precio_minimo = float(request.POST.get("min_precio"))
-        precio_maximo = float(request.POST.get("max_precio"))
+        # replace(".", "") es utilizado para la busqueda por punto eje: 1.000.000
+        precio_minimo = float(request.POST.get("min_precio").replace(".", ""))
+        precio_maximo = float(request.POST.get("max_precio").replace(".", ""))
     except ValueError:
-        # Mostrar mensaje de error al usuario
+        # messages.success(request, "Los valores ingresados deben ser numéricos")
         return render(
             request,
             "client/tienda/tienda.html",
-            {"error_precio": "Los valores de precio son inválidos"},
+            {"error_precio": "Los valores del precio son inválidos"},
         )
+    productos = Producto.objects.filter(
+        Q(precio__range=[precio_minimo, precio_maximo])
+    ).order_by("precio")
 
-    if precio_minimo is not None and precio_maximo is not None:
-
-        productos = Producto.objects.filter(
-            Q(precio__range=[precio_minimo, precio_maximo])
-        )
-        # Ordenar los producto por el precio menor a mayor
-        productos = productos.order_by("precio")
-        contar_productos = productos.count()
-    else:
+    contar_productos = productos.count()
+    if contar_productos == 0:
         return render(
             request,
             "client/tienda/tienda.html",
-            {"error_precio": "Los valores de precio deben ser números"},
+            {
+                "error_busqueda":  f"No se encontraron productos dentro del rango de precios de {"{:,.0f}".format(precio_minimo).replace(',', '.')} a {"{:,.0f}".format(precio_maximo).replace(',', '.')}"            
+            }
         )
+
     return render(
         request,
         "client/tienda/tienda.html",
@@ -170,8 +163,8 @@ def filtro_rango_precios(request):
 @api_view(["POST"])
 def range_priceAPIView(request):
     try:
-        precio_minimo = float(request.GET.get("min_precio"))
-        precio_maximo = float(request.GET.get("max_precio"))
+        precio_minimo = float(request.GET.get("min_precio").replace(".", ""))
+        precio_maximo = float(request.GET.get("max_precio").replace(".", ""))
     except ValueError:
         return Response(
             {"error": "Los valores de precio son inválidos"},
@@ -182,16 +175,17 @@ def range_priceAPIView(request):
         productos = Producto.objects.filter(
             Q(precio__range=[precio_minimo, precio_maximo])
         ).order_by("precio")
-
-        # Ordenar los productos por precio de menor a mayor
-        # productos = productos.order_by("precio")
-        # Contador de productos
+                        
         contar_productos = productos.count()
+        if contar_productos == 0:
+            return Response(
+                {"error":  f"No se encontraron productos dentro del rango de precios de {"{:,.0f}".format(precio_minimo).replace(',', '.')} a {"{:,.0f}".format(precio_maximo).replace(',', '.')}"},status=status.HTTP_400_BAD_REQUEST
+            )
 
     else:
         return Response(
             {"error": "Los valores de precio deben ser número"},
-            status=status.HTTP_400_BAD_REQUEST,
+            status=status.HTTP_400_BAD_REQUEST
         )
 
     serializer = ProductoSerializer(productos, many=True)
@@ -329,31 +323,42 @@ def agregar_productos(request):
         form = ProductoForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, "Producto agregado")            
+            messages.success(request, "Producto agregado")
             form = ProductoForm()
         else:
-            messages.error(request, "Ha ocurrido un error en el formulario, intenta agregar otra vez el producto")
+            messages.error(
+                request,
+                "Ha ocurrido un error en el formulario, intenta agregar otra vez el producto",
+            )
     else:
         form = ProductoForm()
     return render(request, "admin/productos/form_producto.html", {"form": form})
 
+
 @login_required(login_url="inicio_sesion")
 def listar_productos(request):
     # Listar
-    queryset = Producto.objects.all()    
+    queryset = Producto.objects.all()
 
     # Agregar
     if request.method == "POST":
         form = ProductoForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, "Producto agregado")            
+            messages.success(request, "Producto agregado")
             form = ProductoForm()
         else:
-            messages.error(request, "Ha ocurrido un error en el formulario, intenta agregar otra vez el producto")
+            messages.error(
+                request,
+                "Ha ocurrido un error en el formulario, intenta agregar otra vez el producto",
+            )
     else:
         form = ProductoForm()
-    return render(request, "admin/productos/form_producto.html", {"producto": queryset, "form": form}) 
+    return render(
+        request,
+        "admin/productos/form_producto.html",
+        {"producto": queryset, "form": form},
+    )
 
 
 def actualizar_producto(request, id_producto):
@@ -362,10 +367,13 @@ def actualizar_producto(request, id_producto):
         form = ProductoForm(request.POST, request.FILES, instance=producto)
         if form.is_valid():
             form.save()
-            messages.success(request, "Producto Actualizado")            
+            messages.success(request, "Producto Actualizado")
             form = ProductoForm()
         else:
-            messages.error(request, "Ha ocurrido un error en el formulario, intenta actualizar otra vez el producto")
+            messages.error(
+                request,
+                "Ha ocurrido un error en el formulario, intenta actualizar otra vez el producto",
+            )
     else:
         form = ProductoForm(instance=producto)
     return render(request, "admin/productos/actualizar_producto.html", {"form": form})
