@@ -31,14 +31,22 @@
             <tbody>
               {% for p in producto %}
                 <tr>
-                  <td class="align-middle">
-                    <img class="w-25" src="{{ p.imagen.url }}" alt="imagen producto" />
+                  <td class="align-middle text-center">
+                    <a href="{{ p.imagen.url }}"><img class="w-50 h-auto" src="{{ p.imagen.url }}" alt="imagen producto" /></a>
                   </td>
-                  <td class="align-middle">{{ p.nombre }}</td>
+                  <td class="align-middle">
+                    <span>{{ p.nombre }}</span>
+                  </td>
                   <td class="align-middle">{{ p.descripcion }}</td>
                   <td class="align-middle">{{ p.precio }}</td>
-                  <td class="align-middle">{{ p.stock }}</td>
-                  <td class="align-middle">{{ p.disponible }}</td>
+                  <td class="align-middle text-center">{{ p.stock }}</td>
+                  <td class="align-middle text-center">
+                    {% if p.disponible %}
+                      <i class="fas fa-check-circle fa-xl text-success"></i>
+                    {% else %}
+                      <i class="fas fa-times-circle fa-xl text-danger"></i>
+                    {% endif %}
+                  </td>
                   <td class="align-middle">
                     <div class="d-flex gap-1">
                       <button type="button" class="btn btn-warning rounded-circle" data-bs-toggle="modal" data-bs-target="#modalModificar"><i class="fa-regular fa-pen-to-square"></i></button>
@@ -57,7 +65,7 @@
 
     <div class="modal fade" id="modalAgregar" tabindex="-1" aria-labelledby="modalAgregar" aria-hidden="true">
       <div class="modal-dialog modal-fullscreen w-75 h-auto mx-auto mt-5">
-        <form class="row g-3" action="{% url 'agregar_productos' %}" method="POST" enctype="multipart/form-data">
+        <form class="row g-3" action="{% url 'listar_productos' %}" method="POST" enctype="multipart/form-data">
           {% csrf_token %}
           <div class="modal-content">
             <div class="modal-header">
@@ -90,7 +98,8 @@
       </div>
     </div>
 
-    {% include 'admin/productos/actualizar_producto.html' %}
+   <a href="{% url 'actualizar_producto' %}">ssssss</a>
+    {% comment %} {% include 'admin/productos/actualizar_producto.html' %} {% endcomment %}
     {% include 'admin/productos/eliminar_producto.html' %}
   </div>
   <script src="{% static 'js/tblProducto.js' %}"></script>

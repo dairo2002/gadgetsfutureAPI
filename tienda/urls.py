@@ -35,8 +35,9 @@ urlpatterns = [
     path( "categoria/api/detail_products/v1/<int:product_id>/",views.detail_productsAPIView,),
 
     # ? ADMIN     
-    path("admin/productosds/", views.listar_productos, name="listar_productos"),
-    path("admin/productos/", views.agregar_productos, name="agregar_productos"),
+    path("admin/productos/", views.listar_productos, name="listar_productos"),
+    path("admin/productos/<int:id_producto>/", views.actualizar_producto, name="actualizar_producto"),
+    # path("admin/productos/", views.agregar_productos, name="agregar_productos"),
     path("admin/categorias/", views.lista_categorias, name="listar_categorias"),
 
 ]

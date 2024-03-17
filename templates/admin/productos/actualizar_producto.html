@@ -1,47 +1,34 @@
 <div class="modal fade" id="modalModificar" tabindex="-1" aria-labelledby="modalModificar" aria-hidden="true">
-    <!-- <div class="modal-dialog modal-xl"> -->
     <div class="modal-dialog modal-fullscreen w-75 h-auto mx-auto mt-5">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="modalModificar">Modificar un producto</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <form class="row g-3" action="" method="POST" enctype="multipart/form-data">
-            <div class="col-md-4">
-              <label>Nombre</label>
-              <input name="txtNombreActu" type="text" class="form-control" placeholder="Nombre del producto" required />
+        <form action="{% url 'actualizar_producto' id_producto=producto.id %}" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="modal-body">
+            <div class="row p-md-4">
+              {% for field in form %}
+                <div class="col-12 col-md-6 mb-3">{{ field.label_tag }}
+                  {{ field }}</div>
+              {% endfor %}
+              {% if form.errors %}
+                <ul class="d-flex flex-column list-unstyled">
+                  {% for field_errors in form.errors.values %}
+                    {% for error in field_errors %}
+                      <small><i class="fa-solid fa-circle-exclamation" style="color: #c60c0c;"></i> {{ error }}</small>
+                    {% endfor %}
+                  {% endfor %}
+                </ul>
+              {% endif %}
             </div>
-            <div class="col-md-8">
-              <label>Descripción</label>
-              <textarea name="txtDescripcionActu" class="form-control" placeholder="Describe el producto" required></textarea>>
-            </div>
-            <div class="col-md-3">
-              <label>Precio</label>
-              <input name="txtPrecioActu" type="text" class="form-control" placeholder="Precio del producto" pattern="[0-9]+" required />
-            </div>
-            <div class="col-md-3">
-              <label>Stock</label>
-              <input name="txtStockActu" type="text" class="form-control" placeholder="Stock del producto" pattern="[0-9]+" required />
-            </div>
-            <div class="col-md-3">
-              <label>Imagen</label>
-              <input name="txtImagenActu" type="file" class="form-control" aria-label="file example" accept="image *" required />
-            </div>
-
-            <div class="col-md-3">
-              <label>Categorías</label>
-              <select name="txtCategoriaActu" class="form-select" required aria-label="select example">
-                <option value="">Seleccione una categoria</option>
-                <option value="1">One</option>
-              </select>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-warning">Modificar</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-warning">Modificar</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

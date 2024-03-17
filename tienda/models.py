@@ -11,6 +11,9 @@ from django.core.validators import FileExtensionValidator
 
 import locale, decimal
 
+from django.template.defaultfilters import floatformat
+
+
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=200, unique=True)
@@ -42,7 +45,10 @@ class Producto(models.Model):
     precio = models.DecimalField(max_digits=12, decimal_places=2)
     stock = models.IntegerField()
     # FileExtensionValidator permite cargar imagenes con la extencion especifica que pasamos
-    imagen = models.ImageField(upload_to="productos/", validators=[FileExtensionValidator(allowed_extensions=["jpg","png"])])
+    imagen = models.ImageField(
+        upload_to="productos/",
+        validators=[FileExtensionValidator(allowed_extensions=["jpg", "png"])],
+    )
     disponible = models.BooleanField(default=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
 
@@ -51,8 +57,14 @@ class Producto(models.Model):
 
     def get_url_producto(self):
         return reverse("detalle_producto", args=[self.categoria.slug, self.slug])
-    
 
+    def precioFormatiado(self):
+        precio = "{:,}".format(self.precio).replace(',', '.')
+        return precio
+    
+    def descuentoFormatiado(self):
+        return "{:,}".format(self.aplicar_descuento()).replace(',', '.')
+    
     def aplicar_descuento(self):
         if (
             self.categoria.descuento
@@ -62,25 +74,42 @@ class Producto(models.Model):
             fecha_actual = timezone.now()
             if self.categoria.fecha_inicio <= fecha_actual <= self.categoria.fecha_fin:
                 descuento_decimal = 1 - self.categoria.descuento / 100
-                descuento = self.precio * descuento_decimal            
+                descuento = self.precio * descuento_decimal
                 return descuento
             else:
                 # Si la fecha actual está fuera del rango de fechas de descuento, limpiar los campos relacionados con el descuento
                 self.categoria.descuento = None
                 self.categoria.fecha_inicio = None
                 self.categoria.fecha_fin = None
-                self.categoria.save()            
+                self.categoria.save()
                 return self.precio
         return self.precio
+        # return "{:,}".format(self.precio).replace(",", ".")
 
-# se ejecuta antes de que el objecto llege a la DB 
+    def promedioCalificacion(self):
+        revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(
+            promedio=Avg("calificacion")
+        )
+        avg = 0
+        if revisar["promedio"] is not None:
+            avg = float(revisar["promedio"])
+        return avg
+
+    def contarCalificaciones(self):
+        revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(
+            contar=Count("id")
+        )
+        contar = 0
+        if revisar["contar"] is not None:
+            contar = int(revisar["contar"])
+        return contar
+
+
+# se ejecuta antes de que el objecto llege a la DB
 @receiver(pre_save, sender=Producto)
 def _post_save_receiver(sender, instance, **kwargs):
     if not instance.slug:
         instance.slug = slugify(instance.nombre)
-
-
-
 
     # ! Moneda colombiana
     # return "{:,.0f}".format(self.precio).replace(",", ".")
@@ -132,44 +161,6 @@ def _post_save_receiver(sender, instance, **kwargs):
     #             return self.precio
 
     #     return self.precio
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def promedioCalificacion(self):
-        revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(
-            promedio=Avg("calificacion")
-        )
-        avg = 0
-        if revisar["promedio"] is not None:
-            avg = float(revisar["promedio"])
-        return avg
-
-    def contarCalificaciones(self):
-        revisar = Valoraciones.objects.filter(producto=self, estado=True).aggregate(
-            contar=Count("id")
-        )
-        contar = 0
-        if revisar["contar"] is not None:
-            contar = int(revisar["contar"])
-        return contar
 
 
 class Valoraciones(models.Model):

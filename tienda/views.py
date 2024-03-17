@@ -339,12 +339,36 @@ def agregar_productos(request):
 
 @login_required(login_url="inicio_sesion")
 def listar_productos(request):
-    queryset = Producto.objects.all()
+    # Listar
+    queryset = Producto.objects.all()    
 
-    agregar_productos(request)
-    return render(request, "admin/productos/form_producto.html", {"producto": queryset}) 
+    # Agregar
+    if request.method == "POST":
+        form = ProductoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Producto agregado")            
+            form = ProductoForm()
+        else:
+            messages.error(request, "Ha ocurrido un error en el formulario, intenta agregar otra vez el producto")
+    else:
+        form = ProductoForm()
+    return render(request, "admin/productos/form_producto.html", {"producto": queryset, "form": form}) 
 
 
+def actualizar_producto(request, id_producto):
+    producto = get_object_or_404(Producto, id=id_producto)
+    if request.method == "POST":
+        form = ProductoForm(request.POST, request.FILES, instance=producto)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Producto Actualizado")            
+            form = ProductoForm()
+        else:
+            messages.error(request, "Ha ocurrido un error en el formulario, intenta actualizar otra vez el producto")
+    else:
+        form = ProductoForm(instance=producto)
+    return render(request, "admin/productos/actualizar_producto.html", {"form": form})
 
 
 @login_required(login_url="inicio_sesion")
