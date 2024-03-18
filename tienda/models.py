@@ -114,7 +114,7 @@ def _post_save_receiver(sender, instance, **kwargs):
     if not instance.slug:
         instance.slug = slugify(instance.nombre)
 
-    # ! Moneda colombiana
+    # ? Moneda colombiana
     # return "{:,.0f}".format(self.precio).replace(",", ".")
     # locale.setlocale(locale.LC_ALL,'es_CO.UTF-8')
     # return locale.currency(self.precio, grouping=True)

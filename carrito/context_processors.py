@@ -52,5 +52,6 @@ def mostrar_carrito(request, total=0, cantidad=0, carrito=None):
     except ObjectDoesNotExist:
         pass
     
-    return dict(total=total, articulo_carrito=carrito)
+    totalFormato = "{:,.0f}".format(total).replace(",",".")
+    return dict(total=totalFormato, articulo_carrito=carrito)
 

@@ -74,7 +74,7 @@ def realizar_pedido(request, total=0, cantidad=0):
             return redirect("pago", id_pedido=data.pk)
     else:
         formulario = PedidoForm()
-    return render(request, "pedido/realizar_pedido.html", {"form": formulario})
+    return render(request, "client/pedido/realizar_pedido.html", {"form": formulario})
 
 
 @api_view(["GET", "POST"])
@@ -107,7 +107,6 @@ def pago(request, id_pedido):
     if request.method == "POST":
         formulario = PagoForm(request.POST, request.FILES)
         if formulario.is_valid():
-
             data = Pago()
             data.metodo_pago = formulario.cleaned_data["metodo_pago"]
             data.comprobante = formulario.cleaned_data["comprobante"]
@@ -121,32 +120,32 @@ def pago(request, id_pedido):
             messages.success(
                 request, "Pago exitoso, Se verificara si el comprobante es valido"
             )
-            return redirect("index")
 
+            # Filtro eliminar los producto de usuario actual al realizar el pago
+            carrito = Carrito.objects.filter(usuario=request.user)
+            carrito.delete()
+ 
+            return  redirect("index")
         else:
             messages.error(request, "Por favor corrija los errores en el formulario.")
     else:
         formulario = PagoForm()
-    return render(request, "pedido/pago.html", {"pedido": pedido, "form": formulario})
+    return render(request, "client/pedido/pago.html", {"pedido": pedido, "form": formulario})
 
 
 @receiver(post_save, sender=Pago)
 def email_info_pedido(sender, instance, **kwargs):
     if instance.estado_pago == "Aprobado" and instance.estado_envio == "Enviado":
         usuario = instance.usuario
-        pago = Pago()
+
         datos = Pedido.objects.filter(usuario=usuario)
         for pedido in datos:
             pedido.ordenado = True
             pedido.save()
 
-            # pago_obj = pago.metodo_pago
-            # pedido.pago = pago_obj
-            # pago_obj.save()
-
         mail_subject = "¡Su pedido ha sido aprobado!"
         mensaje = render_to_string(
-            "pedido/email_pago.html",
+            "client/pedido/email_pago.html",
             {"pedido": pedido},
         )
 
@@ -160,10 +159,10 @@ def email_info_pedido(sender, instance, **kwargs):
 def actualizar_stock(request):
     carrito = Carrito.objects.filter(usuario=request.usuario)
     for articulo in carrito:
+        # producto_id acceder al _id 
         producto = Producto.objects.get(pk=articulo.producto_id)
         producto.stock -= articulo.cantidad
         producto.save()
-        articulo.delete()  # Eliminar los productos del carrito
-
+       
 
 # ? API

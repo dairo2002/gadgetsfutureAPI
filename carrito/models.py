@@ -23,28 +23,14 @@ class Carrito(models.Model):
     fecha_agregado = models.DateField(auto_now_add=True)
     # igual a null, lo que indica que no están vinculados a ningún carrito específico. Esto podría ser útil si deseas mantener un historial de los artículos
 
-    
-    
-
     def sub_total(self):
+        return "{:,.0f}".format(self.operacion()).replace(",",".")
+
+    def operacion(self):
         if self.producto.aplicar_descuento():
-            return self.producto.aplicar_descuento() * self.cantidad    
+            return self.producto.aplicar_descuento() * self.cantidad
         else:
-            return self.producto.precio * self.cantidad        
-
-
-    # ? Otra forma de moneda, no funciona  
-    # def sub_total(self):
-    #     locale.setlocale(locale.LC_ALL, "es_CO")
-        
-    #     if self.producto.aplicar_descuento():          
-    #         descuento = self.producto.aplicar_descuento()  * self.cantidad         
-    #         return descuento
-    #     else:
-    #         precio = self.producto.precio * self.cantidad
-    #         precio_formato = locale.currency(precio, grouping=True)
-    #         return precio_formato
-  
+            return self.producto.precio * self.cantidad
 
     def __unicode__(self):
         return self.producto

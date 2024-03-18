@@ -3,8 +3,13 @@ from cuenta.models import Cuenta
 from tienda.models import Producto
 from django.utils import timezone
 from django.db.models import Q
+from django.core.validators import EmailValidator
+from django.core.validators import validate_image_file_extension
+from django.core.validators import FileExtensionValidator
 
-class Pago(models.Model):   
+
+class Pago(models.Model):
+    # ! CORREGIR
     OPCIONES_ESTADO_PAGOS = [
         ("Verificacion", "Verificacion"),
         ("Aprobado", "Aprobado"),
@@ -20,16 +25,21 @@ class Pago(models.Model):
 
     usuario = models.ForeignKey(Cuenta, on_delete=models.CASCADE)
     metodo_pago = models.CharField(max_length=50)
-    cantidad_pagada = models.DecimalField(max_digits=12, decimal_places=3)    
-    comprobante = models.ImageField(upload_to="comprobantes/")
-    estado_pago = models.CharField(max_length=50, choices=OPCIONES_ESTADO_PAGOS, default="Verificacion")
-    estado_envio = models.CharField(max_length=50, choices=OPCIONES_ENVIO, default='En espera de pago')
+    cantidad_pagada = models.DecimalField(max_digits=12, decimal_places=3)
+    comprobante = models.ImageField(
+        upload_to="comprobantes/",
+        validators=[validate_image_file_extension],
+    )
+    estado_pago = models.CharField(
+        max_length=50, choices=OPCIONES_ESTADO_PAGOS, default="Verificacion"
+    )
+    estado_envio = models.CharField(
+        max_length=50, choices=OPCIONES_ENVIO, default="En espera de pago"
+    )
     fecha = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.metodo_pago
-   
-
 
 
 class Pedido(models.Model):
@@ -62,17 +72,15 @@ class Pedido(models.Model):
     ciudad = models.CharField(max_length=50, choices=OPCION_CIUDADES)
     codigo_postal = models.CharField(max_length=50)
     total_pedido = models.DecimalField(max_digits=12, decimal_places=3)
-    
+
     def __str__(self):
         return self.nombre
 
     def nombre_completo_pedido(self):
         return f"{self.nombre} {self.apellido}"
-    
+
     def region(self):
-        return f'{self.ciudad}-{self.departamento}'
+        return f"{self.ciudad}-{self.departamento}"
 
     def direccion_completa(self):
         return f"{self.direccion} {self.direccion_local}"
-
-

@@ -196,7 +196,7 @@ def recuperar_password(request):
             mail_subject = "Recuperar contraseña"
             # Renderizar el mensaje del correo electrónico
             mensaje = render_to_string(
-                "cuenta/mensaje_cambiar_pwd.html",
+                "client/cuenta/mensaje_cambiar_pwd.html",
                 {
                     "usuario": usuario,
                     "dominio": current_site,

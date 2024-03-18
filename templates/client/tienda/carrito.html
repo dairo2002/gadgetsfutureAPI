@@ -16,7 +16,7 @@
               <div class="card-body p-5">
                 <div class="d-flex justify-content-between align-items-center mb-5">
                   <h3 class="fw-bold mb-0 text-black">Carrito de compras</h3>
-                  <small class="text-muted mb-0">{{ contar_productos }} Articulos</small>
+                  <small class="text-muted mb-0">{{ contar_productos }} Artículos</small>
                 </div>
                 <hr class="my-4" />
                 {% for articulo in articulo_carrito %}
@@ -39,7 +39,7 @@
                       <div class="col-md-3 col-lg-2 col-xl-2 mt-3 mt-lg-0">
                         <p class="mb-0">$ {{ articulo.sub_total }}</p>
                         <del class="text-muted">
-                          <small class="text-muted">${{ articulo.producto.precio }}</small>
+                          <small class="text-muted">$ {{ articulo.producto.descuentoFormatiado }}</small>
                         </del>
                       </div>
                       <div class="col-md-1 col-lg-1 col-xl-1 mt-3 mt-lg-0">
@@ -65,7 +65,7 @@
                       </div>
                       <div class="col-md-3 col-lg-2 col-xl-2 mt-3 mt-lg-0">
                         <p class="mb-0">$ {{ articulo.sub_total }}</p>
-                        <small class="mb-0 text-muted">$ {{ articulo.producto.precio }}</small>
+                        <small class="mb-0 text-muted">$ {{ articulo.producto.precioFormatiado }}</small>
                       </div>
                       <div class="col-md-1 col-lg-1 col-xl-1 mt-3 mt-lg-0">
                         <a href="{% url 'eliminar_producto_carrito' articulo.producto.id articulo.id %}" class=""><i class="fa-solid fa-xmark fa-xl" style="color: #333333;"></i></a>
@@ -87,16 +87,9 @@
                     <hr class="my-4" />
 
                     <div class="d-flex justify-content-between">
-                      <h6 class="text-uppercase">Articulos</h6>
-                      <h6 class="text-uppercase mb-3">{{ contar_productos }}</h6>
-                      {% comment %} <h6>$ 132.00</h6> {% endcomment %}
+                      <h6 class="text-uppercase">Artículos</h6>
+                      <h6 class="text-uppercase mb-3">{{ contar_productos }}</h6>                      
                     </div>
-                    {% comment %} <div class="d-flex justify-content-between">
-                      <h6 class="text-uppercase mb-3">Envio</h6>
-                      <h6 class="text-uppercase mb-3">$ 12.000</h6>
-                    </div>
-                    <hr class="my-3" /> {% endcomment %}
-
                     <div class="d-flex justify-content-between mb-3">
                       <h6 class="text-uppercase">Total</h6>
                       <h5 class="fw-semibold">$ {{ total }}</h5>
