@@ -96,11 +96,11 @@ def orderAPIView(request):
     #     else:
     #         total += articulo.producto.precio * articulo.cantidad
     #         cantidad += articulo.cantidad
-    if request.method == 'POST':
+    if request.method == "POST":
         serializer = PedidoSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            
+
 
 def pago(request, id_pedido):
     pedido = get_object_or_404(Pedido, pk=id_pedido)
@@ -122,15 +122,17 @@ def pago(request, id_pedido):
             )
 
             # Filtro eliminar los producto de usuario actual al realizar el pago
-            carrito = Carrito.objects.filter(usuario=request.user)
-            carrito.delete()
- 
-            return  redirect("index")
+            # carrito = Carrito.objects.filter(usuario=request.user)
+            # carrito.delete()
+
+            return redirect("index")
         else:
             messages.error(request, "Por favor corrija los errores en el formulario.")
     else:
         formulario = PagoForm()
-    return render(request, "client/pedido/pago.html", {"pedido": pedido, "form": formulario})
+    return render(
+        request, "client/pedido/pago.html", {"pedido": pedido, "form": formulario}
+    )
 
 
 @receiver(post_save, sender=Pago)
@@ -156,13 +158,16 @@ def email_info_pedido(sender, instance, **kwargs):
         actualizar_stock(instance)
 
 
+
+# Corregir porque con pedido anteriores no funciona solo en el pedido actual
 def actualizar_stock(request):
     carrito = Carrito.objects.filter(usuario=request.usuario)
     for articulo in carrito:
-        # producto_id acceder al _id 
+        # producto_id acceder al _id
         producto = Producto.objects.get(pk=articulo.producto_id)
         producto.stock -= articulo.cantidad
         producto.save()
-       
+        articulo.delete()
+
 
 # ? API

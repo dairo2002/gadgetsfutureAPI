@@ -26,22 +26,14 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.views.decorators.csrf import csrf_protect
-
-# from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 from .serializers import CuentaSerializer
 
-# from .serializers import LoginSerializer
-
-
-# Instalar: pip install requests permite hacer solicitudes HTTP, como GET,POST..
 import requests
-import datetime
 
 
 def registrarse(request):
-    if request.method == "POST":
-        # Crea una instancia de RegistroForms con los datos del formulario que el usuario ha enviado a través de una solicitud POST.
+    if request.method == "POST":        
         formulario = RegistroForms(request.POST)
         if formulario.is_valid():
             nombre = formulario.cleaned_data["nombre"]
@@ -61,12 +53,35 @@ def registrarse(request):
                 username=usuario,
                 password=password,
             )
-
             # El campo de telefono es guardado de esta forma porque es un campo obligatorio
             crear_usuario.telefono = telefono
             crear_usuario.save()
 
-            usuarios = auth.authenticate(
+            # Informacion enviada al correo del usuario           
+            current_site = get_current_site(request)
+            mail_subject = "Por favor, activa tu cuenta"
+            mensage = render_to_string(
+                "client/cuenta/activar_cuenta.html",
+                {
+                    "usuario": crear_usuario,
+                    "dominio": current_site,
+                    "uid": urlsafe_base64_encode(force_bytes(crear_usuario.id)),
+                    "token": default_token_generator.make_token(crear_usuario),
+                }
+            )
+
+            to_email = correo_electronico
+            send_email = EmailMessage(mail_subject, mensage, to=[to_email])
+            send_email.send()
+             
+
+            messages.info(request, "Por favor activa la cuenta ingresando al enlace enviado al correo electrónico") 
+            # ruta de gmail que lo redirije a iniciar sesion
+            return redirect(
+                "/cuenta/inicio_sesion/?command=verificacion&email="+ correo_electronico
+            )
+
+            '''usuarios = auth.authenticate(
                 correo_electronico=correo_electronico, password=password
             )
 
@@ -76,13 +91,30 @@ def registrarse(request):
                     request,
                     f"Registro exito {usuarios.nombre} {usuarios.apellido}",
                 )
-            return redirect("index")
+            return redirect("index")'''
     else:
         formulario = RegistroForms()
     return render(request, "client/cuenta/registrarse.html", {"form": formulario})
 
 
-# ! Corregir
+def activar_cuenta(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        usuario = Cuenta._default_manager.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Cuenta.DoesNotExist):
+        usuario = None
+
+    if usuario is not None and default_token_generator.check_token(usuario, token):
+        # Cambios el usuario a activo y guardamos
+        usuario.is_active = True
+        usuario.save()
+        messages.success(request, "Felicidades! Tu cuenta está activada")
+        return redirect("inicio_sesion")
+    else:
+        messages.error(request, "Enlace de activación no válido")
+        return redirect("registrarse")
+
+# ! Corregir, el tema de carrito
 def inicio_sesion(request):
     # Verifica si la solicitud al servidor es de tipo POST
     if request.method == "POST":
@@ -94,19 +126,15 @@ def inicio_sesion(request):
         usuarios = auth.authenticate(
             correo_electronico=correo_electronico, password=password
         )
-
-        # usuarios = Cuenta()
-
+        
         if usuarios is not None:
             if usuarios.is_active:
-                if usuarios.is_admin and usuarios.is_staff:
-                    print("admin ",usuarios.is_admin and usuarios.is_staff)
+                if usuarios.is_admin and usuarios.is_staff:                 
                     auth.login(request, usuarios)
                     messages.success(
                         request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
                     )
                     return redirect("panel_admin")
-
                 else:
                     auth.login(request, usuarios)
                     messages.success(

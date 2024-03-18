@@ -69,7 +69,7 @@ class Cuenta(AbstractBaseUser):
     is_staff = models.BooleanField(default=False, verbose_name="usuario")
     is_admin = models.BooleanField(default=False, verbose_name="Administrador")
     # Por defecto activo sea administrador o el usuario
-    is_active = models.BooleanField(default=True, verbose_name="Actvio")
+    is_active = models.BooleanField(default=False, verbose_name="Actvio")
 
     # Campo con el que debe iniciar sesion el administrador
     USERNAME_FIELD = "correo_electronico"
@@ -84,20 +84,11 @@ class Cuenta(AbstractBaseUser):
     # Permiso para el administrador
     def has_perm(self, perm, obj=None):
         return  self.is_admin
-        # if perm == self.is_staff:
-        #     return self.is_admin
-        # elif perm == self.is_admin:
-        #     return False
-        # Si el permiso no es específicamente para administrador, delegar la verificación al método has_perm de la clase base
-        # return super().has_perm(perm, obj)
 
     # Permisos a todos los modulos de la aplicacion
     def has_module_perms(self, add_label):
         return True
-        # Si el usuario es admin
-        # if self.is_admin:
-        # es admin, tiene todo los permisos
-        # return False
+
     
 
     def usuario_nombre_completo(self):

@@ -1,19 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
-  <!-- Mensajes de inicio sesión -->
   <div>
+    <div class="w-25 my-2 mx-5 position-absolute top-0 end-0 z-1">
+      {% include 'client/include/alertas.html' %}
+    </div>
     <div class="card border-dark border-opacity-50 col-md-10 col-lg-6 rounded-4 text-dark mx-auto my-3">
-      {% comment %}col-md-6{% endcomment %}
       <h2 class="text-center mt-3">Registrarse</h2>
       <form action="{% url 'registrarse' %}" method="POST" class="row g-3 p-3 form_registrarse">
         {% csrf_token %}
         <div class="d-flex">
           <div class="row">
             {% for field in form %}
-              <div class="col-12 col-md-6 mb-3">
-                {{ field.label_tag }}
-                {{ field }}
-              </div>
+              <div class="col-12 col-md-6 mb-3">{{ field.label_tag }}
+                {{ field }}</div>
             {% endfor %}
             <div>
               {% if form.errors %}
