@@ -8,8 +8,7 @@ from django.core.validators import validate_image_file_extension
 from django.core.validators import FileExtensionValidator
 
 
-class Pago(models.Model):
-    # ! CORREGIR
+class Pago(models.Model):    
     OPCIONES_ESTADO_PAGOS = [
         ("Verificacion", "Verificacion"),
         ("Aprobado", "Aprobado"),
@@ -25,7 +24,7 @@ class Pago(models.Model):
 
     usuario = models.ForeignKey(Cuenta, on_delete=models.CASCADE)
     metodo_pago = models.CharField(max_length=50)
-    cantidad_pagada = models.DecimalField(max_digits=12, decimal_places=3)
+    cantidad_pagada = models.DecimalField(max_digits=12, decimal_places=2)
     comprobante = models.ImageField(
         upload_to="comprobantes/",
         validators=[validate_image_file_extension],
@@ -71,7 +70,7 @@ class Pedido(models.Model):
     departamento = models.CharField(max_length=50, choices=OPCION_DEPARTAMENTO)
     ciudad = models.CharField(max_length=50, choices=OPCION_CIUDADES)
     codigo_postal = models.CharField(max_length=50)
-    total_pedido = models.DecimalField(max_digits=12, decimal_places=3)
+    total_pedido = models.DecimalField(max_digits=12, decimal_places=2)
 
     def __str__(self):
         return self.nombre

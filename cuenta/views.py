@@ -12,6 +12,7 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 from django.utils import timezone
+from datetime import datetime, timedelta
 
 from carrito.views import _carrito_sesion
 from carrito.models import Carrito, CarritoSesion
@@ -24,16 +25,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.authtoken.views import ObtainAuthToken
-from django.views.decorators.csrf import csrf_protect
-from rest_framework.permissions import AllowAny
+
 from .serializers import CuentaSerializer
 
 import requests
 
 
 def registrarse(request):
-    if request.method == "POST":        
+    if request.method == "POST":
         formulario = RegistroForms(request.POST)
         if formulario.is_valid():
             nombre = formulario.cleaned_data["nombre"]
@@ -57,7 +56,7 @@ def registrarse(request):
             crear_usuario.telefono = telefono
             crear_usuario.save()
 
-            # Informacion enviada al correo del usuario           
+            # Informacion enviada al correo del usuario
             current_site = get_current_site(request)
             mail_subject = "Por favor, activa tu cuenta"
             mensage = render_to_string(
@@ -67,21 +66,24 @@ def registrarse(request):
                     "dominio": current_site,
                     "uid": urlsafe_base64_encode(force_bytes(crear_usuario.id)),
                     "token": default_token_generator.make_token(crear_usuario),
-                }
+                },
             )
 
             to_email = correo_electronico
             send_email = EmailMessage(mail_subject, mensage, to=[to_email])
             send_email.send()
-             
 
-            messages.info(request, "Por favor activa la cuenta ingresando al enlace enviado al correo electrónico") 
+            messages.info(
+                request,
+                "Por favor activa la cuenta ingresando al enlace enviado al correo electrónico",
+            )
             # ruta de gmail que lo redirije a iniciar sesion
             return redirect(
-                "/cuenta/inicio_sesion/?command=verificacion&email="+ correo_electronico
+                "/cuenta/inicio_sesion/?command=verificacion&email="
+                + correo_electronico
             )
 
-            '''usuarios = auth.authenticate(
+            """usuarios = auth.authenticate(
                 correo_electronico=correo_electronico, password=password
             )
 
@@ -91,7 +93,7 @@ def registrarse(request):
                     request,
                     f"Registro exito {usuarios.nombre} {usuarios.apellido}",
                 )
-            return redirect("index")'''
+            return redirect("index")"""
     else:
         formulario = RegistroForms()
     return render(request, "client/cuenta/registrarse.html", {"form": formulario})
@@ -114,6 +116,7 @@ def activar_cuenta(request, uidb64, token):
         messages.error(request, "Enlace de activación no válido")
         return redirect("registrarse")
 
+
 # ! Corregir, el tema de carrito
 def inicio_sesion(request):
     # Verifica si la solicitud al servidor es de tipo POST
@@ -126,10 +129,10 @@ def inicio_sesion(request):
         usuarios = auth.authenticate(
             correo_electronico=correo_electronico, password=password
         )
-        
+
         if usuarios is not None:
             if usuarios.is_active:
-                if usuarios.is_admin and usuarios.is_staff:                 
+                if usuarios.is_admin and usuarios.is_staff:
                     auth.login(request, usuarios)
                     messages.success(
                         request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
@@ -140,27 +143,20 @@ def inicio_sesion(request):
                     messages.success(
                         request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
                     )
+
+                    # carrito_s = CarritoSesion.objects.get(carrito_session=_carrito_sesion(request))
+                    # carrito_existe=Carrito.objects.filter(carritoSesion=carrito_s).exists()
+                    # if carrito_existe:
+                    #     articulo = Carrito.objects.filter(carrito=carrito_s)
+                    #     for a in articulo:
+                    #         a.usuario=usuarios
+                    #         a.save()                        
                     return redirect("index")
             else:
                 messages.error(request, "Tu cuenta está desactivada.")
         else:
             messages.error(request, "Credenciales incorrectas")
             return redirect("inicio_sesion")
-
-            """if usuarios.is_active:        
-                auth.login(request, usuarios)
-                messages.success(
-                    request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
-                )
-                return redirect("panel_admin")
-
-            else:        
-                messages.error(request, "Tu cuenta está desactivada")
-                return redirect("inicio_sesion")                            
-            
-        else:
-            messages.error(request, "Credenciales incorrectas")
-            return redirect("inicio_sesion")"""
     return render(request, "client/cuenta/inicio_sesion.html")
 
     # Verificar si hay un producto en el carrito existente y asociarlo al usuario
@@ -213,16 +209,11 @@ def cerrar_sesion(request):
 def recuperar_password(request):
     if request.method == "POST":
         correo_electronico = request.POST["correo_electronico"]
-        # Hacemos un filtro a la base de datos validando si el correo existe
         if Cuenta.objects.filter(correo_electronico=correo_electronico).exists():
-            # Obtener el objeto de usuario asociado al correo electrónico
             usuario = Cuenta.objects.get(correo_electronico__exact=correo_electronico)
 
-            # Obtener el dominio actual
             current_site = get_current_site(request)
-            # Configurar el asunto del correo electrónico
             mail_subject = "Recuperar contraseña"
-            # Renderizar el mensaje del correo electrónico
             mensaje = render_to_string(
                 "client/cuenta/mensaje_cambiar_pwd.html",
                 {
@@ -233,7 +224,6 @@ def recuperar_password(request):
                 },
             )
 
-            # Configurar y enviar el correo electrónico
             to_email = correo_electronico
             send_email = EmailMessage(mail_subject, mensaje, to=[to_email])
             send_email.send()
@@ -249,20 +239,19 @@ def recuperar_password(request):
     return render(request, "client/cuenta/recuperar_password.html")
 
 
-# Datos obtenidos para ruta del email
 def enlace_cambiar_pwd(request, uidb64, token):
     try:
         uid = urlsafe_base64_decode(uidb64).decode()
-        users = Cuenta._default_manager.get(id=uid)
+        user = Cuenta._default_manager.get(id=uid)
     except (TypeError, ValueError, OverflowError, Cuenta.DoesNotExist):
-        users = None
+        user = None
 
-    if users is not None and default_token_generator.check_token(users, token):
+    if user is not None and default_token_generator.check_token(user, token):
         request.session["uid"] = uid
         messages.success(request, "Por favor restablecer la contraseña")
         return redirect("restablecer_password")
     else:
-        messages.error(request, "Este enlace ha caducado!")
+        messages.error(request, "El enlace es inválido")
         return redirect("inicio_sesion")
 
 

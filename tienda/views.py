@@ -126,7 +126,7 @@ def filtro_buscar_producto(request):
     )
 
 
-# ? Corregir que el filtro pueda buscar con decimales, Tambien la API
+# ? Corregir que el filtro pueda buscar con decimales
 def filtro_rango_precios(request):
     try:
         # replace(".", "") es utilizado para la busqueda por punto eje: 1.000.000
@@ -316,6 +316,9 @@ def searchProductAPIView(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+
+
+
 # ? Admin
 # @login_required(login_url="inicio_sesion")
 def agregar_productos(request):
@@ -356,7 +359,7 @@ def listar_productos(request):
         form = ProductoForm()
     return render(
         request,
-        "admin/productos/form_producto.html",
+        "admin/productos/lista_producto.html",
         {"producto": queryset, "form": form},
     )
 
@@ -381,4 +384,4 @@ def actualizar_producto(request, id_producto):
 
 @login_required(login_url="inicio_sesion")
 def lista_categorias(request):
-    return render(request, "admin/form_categoria.html")
+    return render(request, "admin/categoria/lista_categoria.html")

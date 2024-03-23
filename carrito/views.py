@@ -1,9 +1,12 @@
+import json
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from tienda.models import Producto
 from .models import CarritoSesion, Carrito
 from django.urls import resolve
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 import locale, decimal
 
@@ -19,58 +22,64 @@ def _carrito_sesion(request):
     return carrito
 
 
-# ! Corregir
-def add_carrito(request, producto_id):
-    current_user = request.user
-    producto = Producto.objects.get(id=producto_id)
-
-    if current_user.is_authenticated:
-        carrito_existente = Carrito.objects.filter(
-            producto=producto, usuario=current_user
-        ).exists()
-        if carrito_existente:
-            carrito = Carrito.objects.get(producto=producto, usuario=current_user)
-            carrito.cantidad += 1
-            carrito.save()
+@login_required(login_url="inicio_sesion")
+def add(request, producto_id):
+    if request.method == "POST":
+        cantidad_str = request.POST.get("txtCantidad")
+        if cantidad_str is not None and cantidad_str.isdigit():
+            cantidad = int(cantidad_str)
+            print("cantidad ", cantidad)
+            if cantidad > 0:
+                producto = get_object_or_404(Producto, pk=producto_id)
+                if producto.stock >= cantidad:
+                    if request.user.is_authenticated:
+                        # carrito, _ = Carrito.objects.get_or_create(usuario=request.user, activo=True, producto=producto)
+                        # carrito.cantidad += cantidad
+                        # carrito.save()
+                        if Carrito.objects.filter(usuario=request.user, producto=producto).exists():
+                            carrito = Carrito.objects.get(usuario=request.user, producto=producto)
+                            carrito.cantidad += cantidad
+                        else:
+                            carrito = Carrito(usuario=request.user, producto=producto, cantidad=cantidad)
+                        carrito.save()
+                    else:
+                        carrito_temporal = request.session.get('carrito_temporal', {})
+                        print("Temporal",carrito_temporal)
+                        carrito_temporal[producto_id] = carrito_temporal.get(producto_id, 0)+cantidad
+                        request.session['carrito_temporal']= carrito_temporal            
+                        messages.success(request, f"{producto.nombre} ha sido agregado al carrito temporal.")            
+                        # messages.warning(request, "Por favor, inicia sesión para agregar productos a tu carrito.")    
+                        return redirect("mostrar_carrito")
+                else:
+                    messages.error(request, "La cantidad solicitada excede el stock disponible")    
+            else:
+                messages.error(request, "La cantidad debe ser mayor que 0")
         else:
-            carrito = Carrito.objects.create(
-                producto=producto, cantidad=1, usuario=current_user
-            )
-
-    else:
-        try:
-            session = CarritoSesion.objects.get(
-                carrito_session=_carrito_sesion(request)
-            )
-        except CarritoSesion.DoesNotExist:
-            session = CarritoSesion.objects.create(
-                carrito_session=_carrito_sesion(request)
-            )
-        session.save()
-
-        carrito_existente = Carrito.objects.filter(
-            producto=producto, carritoSesion=session
-        ).exists()
-
-        if carrito_existente:
-            carrito = Carrito.objects.get(producto=producto, carritoSesion=session)
-            carrito.cantidad += 1
-            carrito.save()
-        else:
-            carrito = Carrito.objects.create(
-                producto=producto, cantidad=1, carritoSesion=session
-            )
-
-    return redirect("mostrar_carrito")
+            messages.error(request, "La cantidad no es un número válido")
+    return redirect("mostrar_carrito")            
 
 
-# Vista que va hacia el carrito
+# def add_user_authenticated(usuario, producto, cantidad):
+#     if Carrito.object.filter(usuario=usuario, producto=producto, cantidad=cantidad):
+#         carrito = Carrito.objects.get(usuario=usuario, producto=producto)
+#         carrito.cantidad += cantidad
+#         carrito.save()
+#     else:
+#         carrito = Carrito(usuario=usuario, producto=producto, cantidad=cantidad)
+#         carrito.save()
 
+# def add_user_temporal(request, producto_id, cantidad):    
+#     carrito_temporal = request.session.get('carrito_temporal', [])
+#     producto_info = {'producto': producto, 'cantidad': cantidad}
+#     carrito_temporal.append(producto_info)
+#     request.session['carrito_temporal'] = carrito_temporal
+#     request.session.modified = True
 
+@login_required(login_url="inicio_sesion")
 def mostrar_carrito(request):
     # Renderizamos la pagina, para dar una ruta
     # la Funcionalidad esta en el context_proccesor
-    # Al esta en el context_proccesor nos permite visualizar los productos de carrito en varias vistas  
+    # Al esta en el context_proccesor nos permite visualizar los productos de carrito en varias vistas    
     return render(request, "client/tienda/carrito.html")
 
 

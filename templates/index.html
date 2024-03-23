@@ -37,60 +37,55 @@
         <h4 class="text-center my-4 fw-bold">PRODUCTOS</h4>
         <div class="row d-flex justify-content-center justify-content-lg-start justify-content-xxl-start">
           {% for productos in producto %}
-            {% if productos.categoria.descuento %}
-              <div class="col-10 col-sm-6 col-md-5 col-lg-4 col-xl-3 mb-4">
-                <div class="card tarjeta_productos h-100">
-                  <div class="card-body">
-                    <a href="{{ productos.get_url_producto }}">
-                      <span class="badge p-2 text-bg-success z-1 position-absolute rounded-5">{{ productos.porcentajeDescFormtiado }}%</span>
-                      <img src="{{ productos.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" />
-                    </a>
-                    <h6 class="fw-semibold">{{ productos.nombre }}</h6>
-                    <div class="row">
-                      <span>$ {{ productos.descuentoFormatiado }}</span>
-                      <del>
-                        <small class="text-muted">$ {{ productos.precioFormatiado }}</small>
-                      </del>
-                    </div>
+            <div class="col-10 col-sm-6 col-md-5 col-lg-4 col-xl-3 mb-4">
+              <div class="card tarjeta_productos h-100">
+                <div class="card-body">
+                  <form class="" action="{% url 'add_carrito' productos.id %}" method="POST">
+                    {% csrf_token %}
+                    {% if productos.categoria.descuento %}
+                      <a href="{{ productos.get_url_producto }}">
+                        <span class="badge p-2 text-bg-success z-1 position-absolute rounded-5">{{ productos.porcentajeDescFormtiado }}%</span>
+                        <img src="{{ productos.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" />
+                      </a>
+                      <h6 class="fw-semibold">{{ productos.nombre }}</h6>
+                      <div class="d-flex my-2 justify-content-between">
+                        <span>$ {{ productos.descuentoFormatiado }}</span>
+                        <del>
+                          <small class="text-muted">$ {{ productos.precioFormatiado }}</small>
+                        </del>
+                      </div>
+                    {% else %}
+                      <a href="{{ productos.get_url_producto }}"><img src="{{ productos.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" /></a>
+                      <h6 class="fw-semibold">{{ productos.nombre }}</h6>
+                      <span class="mb-2">$ {{ productos.precioFormatiado }}</span>
+                    {% endif %}
                     {% if productos.stock <= 0 %}
                       <h5><span class="badge text-bg-danger mt-3 mx-auto">Agotado</span></h5>
                     {% else %}
-                      <a href="{% url 'add_carrito' productos.id %}" class="btn btn-outline-dark w-100 my-2">Agregar al carrito</a>
+                      <div class="d-flex gap-2 mt-2">
+                        <input class="form-control" min="1" type="number" name="txtCantidad" />
+                        <button type="submit" class="btn btn-outline-dark w-100">Agregar <i class="fa-solid fa-cart-shopping"></i></button>
+                      </div>
                     {% endif %}
-                  </div>
+                  </form>
                 </div>
               </div>
-            {% else %}
-              <div class="col-10 col-sm-6 col-md-5 col-lg-4 col-xl-3 mb-4">
-                <div class="card tarjeta_productos h-100">
-                  <div class="card-body">
-                    <a href="{{ productos.get_url_producto }}"><img src="{{ productos.imagen.url }}" class="card-img-top rounded-3 mb-2" alt="imagen producto" /></a>
-                    <h6 class="fw-semibold">{{ productos.nombre }}</h6>
-                    <span class="mb-2">{{ productos.precioFormatiado }}</span>
-                    {% if productos.stock <= 0 %}
-                      <h5><span class="badge text-bg-danger mt-4 mx-auto">Agotado</span></h5>
-                    {% else %}
-                      <a href="{% url 'add_carrito' productos.id %}" class="btn btn-outline-dark w-100 my-2">Agregar al carrito</a>
-                    {% endif %}
-                  </div>
-                </div>
-              </div>
-            {% endif %}
+            </div>
           {% endfor %}
         </div>
       </section>
 
-      <div class="my-4 d-flex justify-content-center ">
+      <div class="my-4 d-flex justify-content-center">
         <div class="card rounded-5 w-25 p-3 bg-light">
-            <div >
-                <h3 class="text-center">Descargar</h3>
-                <div class="text-center mt-4">
-                    <a href="">
-                        {% comment %} <img class="w-75" src="{% static 'img/logo.png' %}" alt="descargar mobil" /> {% endcomment %}
-                        <a href=""><img class="" src="{% static 'img/logo.svg' %}" alt="descargar mobil" /></a>
-                    </a>
-                </div>
+          <div>
+            <h3 class="text-center">Descargar</h3>
+            <div class="text-center mt-4">
+              <a href="">
+                {% comment %} <img class="w-75" src="{% static 'img/logo.png' %}" alt="descargar mobil" /> {% endcomment %}
+                <a href=""><img class="" src="{% static 'img/logo.svg' %}" alt="descargar mobil" /></a>
+              </a>
             </div>
+          </div>
         </div>
       </div>
     </div>

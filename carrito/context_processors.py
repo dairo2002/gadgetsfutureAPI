@@ -1,8 +1,10 @@
+import json
 from .views import _carrito_sesion
 from .models import Carrito, CarritoSesion
 from tienda.models import Producto
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 import locale, decimal
 
@@ -32,26 +34,57 @@ def contar_productos(request):
     return dict(contar_productos=contar)
 
 
-def mostrar_carrito(request, total=0, cantidad=0, carrito=None):
+def mostrar_carrito(request):
+    total = 0
+    cantidad = 0
+    carrito = None
+    articulo_carrito = []            
+
     try:
         if request.user.is_authenticated:
             carrito = Carrito.objects.filter(usuario=request.user, activo=True)
+            print("Carrito autneticado:", carrito)
+            for articulo in carrito:                                
+                    total += articulo.producto.precio * articulo.cantidad
+                    articulo_carrito.append({'producto':articulo.producto, 'cantidad':articulo.cantidad})            
         else:
-            carrito_sesion = CarritoSesion.objects.get(
-                carrito_session=_carrito_sesion(request)
-            )
-            carrito = Carrito.objects.filter(carritoSesion=carrito_sesion, activo=True)
-        for articulo in carrito:
-            if articulo.producto.aplicar_descuento():
-                descuento_aplicado = articulo.producto.aplicar_descuento()
-                total += descuento_aplicado * articulo.cantidad
-                cantidad += articulo.cantidad
-            else:
-                total += articulo.producto.aplicar_descuento() * articulo.cantidad
-                cantidad += articulo.cantidad
+            carrito_temporal = request.session.get('carrito_temporal', {})   
+            print("carrito temporal", carrito_temporal)         
+            for prod_id, cantidad in carrito_temporal.items():                
+                producto = get_object_or_404(Producto, pk=prod_id)
+                total +=producto.precio * cantidad
+                articulo_carrito.append({'producto':producto, 'cantidad':cantidad})                                
     except ObjectDoesNotExist:
         pass
-    
-    totalFormato = "{:,.0f}".format(total).replace(",",".")
+
+    totalFormato = "{:,.0f}".format(total).replace(",", ".")
     return dict(total=totalFormato, articulo_carrito=carrito)
 
+# def mostrar_carrito(request):
+#     try:
+#         total = 0
+#         cantidad = 0
+#         carrito = None
+
+#         if request.user.is_authenticated:
+#             carrito = Carrito.objects.filter(usuario=request.user, activo=True)
+#         else:
+#             carrito_sesion = CarritoSesion.objects.get(
+#                 carrito_session=_carrito_sesion(request)
+#             )
+
+#             carrito = Carrito.objects.filter(carritoSesion=carrito_sesion, activo=True)
+#             print("carrito: ", carrito)
+#         for articulo in carrito:
+#             if articulo.producto.aplicar_descuento():
+#                 descuento = articulo.producto.aplicar_descuento()
+#                 total += descuento * articulo.cantidad
+#                 cantidad += articulo.cantidad
+#             else:
+#                 total += articulo.producto.precioFormatiado() * articulo.cantidad
+#                 cantidad += articulo.cantidad
+#     except ObjectDoesNotExist:
+#         pass
+
+#     totalFormato = "{:,.0f}".format(total).replace(",", ".")
+#     return dict(total=totalFormato, articulo_carrito=carrito)

@@ -1,11 +1,11 @@
 $(document).ready(function() {
     $('#tblProductos').DataTable({
-        // dom: "Bfrtip",
-        // buttons: [
-        //     'excel',
-        //     'pdf',
-        //     'print'
-        // ],
+        dom: "Bfrtip",
+        buttons: [
+            'excel',
+            'pdf',
+            'print'            
+        ],
         language: {
              "decimal": ",",
              "thousands": ".",
