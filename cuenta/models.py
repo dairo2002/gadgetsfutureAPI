@@ -85,9 +85,7 @@ class Cuenta(AbstractBaseUser):
 
     # Permisos a todos los modulos de la aplicacion
     def has_module_perms(self, add_label):
-        return True
-
-    
+        return True    
 
     def usuario_nombre_completo(self):
         return f"{self.nombre} {self.apellido}"

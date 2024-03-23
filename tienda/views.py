@@ -348,7 +348,7 @@ def listar_productos(request):
         form = ProductoForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, "Producto agregado")
+            messages.success(request, "Producto guardado")
             form = ProductoForm()
         else:
             messages.error(
@@ -364,22 +364,37 @@ def listar_productos(request):
     )
 
 
-def actualizar_producto(request, id_producto):
+def detalle_producto_admin(request, id_producto):
+    if request.method == "GET":
+        detalle_producto = get_object_or_404(Producto, pk=id_producto)
+        form = ProductoForm(instance=detalle_producto)
+        return render(request, "admin/productos/detalle_producto.html",  {
+            "detalle":detalle_producto, "form":form
+        })
+    
+    else:
+        try:
+            # Actualizar
+            detalle_producto = get_object_or_404(Producto, pk=id_producto)
+            form = ProductoForm(request.POST, instance=detalle_producto)
+            form.save()
+            messages.success(request, "Producto actualizado")
+            return redirect("lista_productos")
+        except:
+            messages.error(request, "Ha ocurrido un error en el formulario, intenta actualizar otra vez el producto")
+            return render(request, "admin/productos/detalle_producto.html", { "detalle":detalle_producto, "form":form})
+
+# ! corregir
+def eliminar_producto(request, id_producto):
     producto = get_object_or_404(Producto, id=id_producto)
     if request.method == "POST":
-        form = ProductoForm(request.POST, request.FILES, instance=producto)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Producto Actualizado")
-            form = ProductoForm()
-        else:
-            messages.error(
-                request,
-                "Ha ocurrido un error en el formulario, intenta actualizar otra vez el producto",
-            )
+        producto.delete()
+        messages.success(request,"Producto eliminado")
+        return redirect("lista_productos")
     else:
-        form = ProductoForm(instance=producto)
-    return render(request, "admin/productos/actualizar_producto.html", {"form": form})
+        messages.error(request,"ERROR")
+    
+    
 
 
 @login_required(login_url="inicio_sesion")

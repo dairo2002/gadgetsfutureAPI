@@ -109,6 +109,7 @@ def activar_cuenta(request, uidb64, token):
     if usuario is not None and default_token_generator.check_token(usuario, token):
         # Cambios el usuario a activo y guardamos
         usuario.is_active = True
+        usuario.is_staff = True
         usuario.save()
         messages.success(request, "Felicidades! Tu cuenta está activada")
         return redirect("inicio_sesion")
@@ -138,7 +139,7 @@ def inicio_sesion(request):
                         request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
                     )
                     return redirect("panel_admin")
-                else:
+                elif usuarios.is_staff:
                     auth.login(request, usuarios)
                     messages.success(
                         request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
@@ -150,7 +151,7 @@ def inicio_sesion(request):
                     #     articulo = Carrito.objects.filter(carrito=carrito_s)
                     #     for a in articulo:
                     #         a.usuario=usuarios
-                    #         a.save()                        
+                    #         a.save()
                     return redirect("index")
             else:
                 messages.error(request, "Tu cuenta está desactivada.")

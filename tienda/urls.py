@@ -32,12 +32,13 @@ urlpatterns = [
     # ? FORMAS DE IR AL DETALLE DE UN PRODUCTO
     path("categoria/api/detail_product/v1/<slug:category_slug>/<slug:product_slug>/",views.detail_productAPIView,),
     path("categoria/api/detail_products/v1/<int:category_id>/<int:product_id>/",views.detail_productAPIView2,),
-    path( "categoria/api/detail_products/v1/<int:product_id>/",views.detail_productsAPIView,),
+    path("categoria/api/detail_products/v1/<int:product_id>/",views.detail_productsAPIView,),
 
     # ? ADMIN     
-    path("admin/productos/", views.listar_productos, name="lista_productos"),
-    path("admin/productos/<int:id_producto>/", views.actualizar_producto, name="actualizar_producto"),
-    # path("admin/productos/", views.agregar_productos, name="agregar_productos"),
+    path("productos/", views.listar_productos, name="lista_productos"),
+    path("productos/<int:id_producto>/", views.detalle_producto_admin, name="detalle_producto_admin"),
+    path("productos/<int:id_producto>/eliminar", views.eliminar_producto, name="eliminar_producto"),
+
     path("admin/categorias/", views.lista_categorias, name="lista_categorias"),
 
 ]
