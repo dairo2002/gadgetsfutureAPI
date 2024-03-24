@@ -46,9 +46,9 @@ def registrarse(request):
             usuario = correo_electronico.split("@")[0]
 
             if Cuenta.objects.filter(username=usuario).exists():
-                messages.warning(request, 'El nombre de usuario ya existe')
+                messages.warning(request, "El nombre de usuario ya existe")
                 return redirect("registrarse")
-            
+
             # metodo create_user creado en ManejadorCuenta
             crear_usuario = Cuenta.objects.create_user(
                 nombre=nombre,
@@ -80,7 +80,7 @@ def registrarse(request):
             send_email.attach_alternative(mensaje, "text/html")
             send_email.send()
 
-            messages.info(
+            messages.warning(
                 request,
                 "Por favor activa la cuenta ingresando al enlace enviado al correo electrónico",
             )
@@ -280,27 +280,53 @@ def signupAPIView(request):
         telefono = serializer.validated_data.get("telefono")
         password = serializer.validated_data.get("password")
         usuario = correo_electronico.split("@")[0]
+
+        if Cuenta.objects.filter(username=usuario).exists():
+            return Response(
+                {"error": "El nombre de usuario ya está en uso."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # Utiliza tu método personalizado create_user para crear el usuario
-        usuario_creado = Cuenta.objects.create_user(
+        crear_usuario = Cuenta.objects.create_user(
             nombre=nombre,
             apellido=apellido,
             username=usuario,
             correo_electronico=correo_electronico,
             password=password,
         )
-        usuario_creado.telefono = telefono
-        usuario_creado.save()
+        crear_usuario.telefono = telefono
+        crear_usuario.save()
         # Genera un token para el usuario registrado
-        token, created = Token.objects.get_or_create(user=usuario_creado)
-        if created:
-            return Response(
-                {
-                    "token": token.key,
-                    "success": True,
-                    "message": f"Bienvenido {usuario_creado.nombre} {usuario_creado.apellido}",
-                },
-                status=status.HTTP_201_CREATED,
-            )
+
+        current_site = get_current_site(request)
+        mail_subject = "Activar cuenta con Gadgets Future"
+        mensaje = render_to_string(
+            "client/cuenta/activar_cuenta.html",
+            {
+                "usuario": crear_usuario,
+                "dominio": current_site,
+                "uid": urlsafe_base64_encode(force_bytes(crear_usuario.id)),
+                "token": default_token_generator.make_token(crear_usuario),
+            },
+        )
+
+        to_email = correo_electronico
+        # EmailMessage
+        send_email = EmailMultiAlternatives(mail_subject, mensaje, to=[to_email])
+        send_email.attach_alternative(mensaje, "text/html")
+        send_email.send()
+        # ruta de gmail que lo redirije a iniciar sesion
+        # return redirect(
+        #     "/cuenta/inicio_sesion/?command=verificacion&email=" + correo_electronico
+        # )
+        return Response(
+            {
+                "success": True,
+                "message": "Por favor activa la cuenta ingresando al enlace enviado al correo electrónico",
+            },
+            status=status.HTTP_201_CREATED,
+        )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
