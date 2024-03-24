@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import PedidoForm, PagoForm
 from .models import Pedido, Pago
 from tienda.models import Producto
-from carrito.models import Carrito, CarritoSesion
+from carrito.models import Carrito
 from django.contrib import messages
 
 #

@@ -10,12 +10,12 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.utils import timezone
 from datetime import datetime, timedelta
 
 from carrito.views import _carrito_sesion
-from carrito.models import Carrito, CarritoSesion
+from carrito.models import Carrito
 
 # API
 from rest_framework import status
@@ -58,8 +58,8 @@ def registrarse(request):
 
             # Informacion enviada al correo del usuario
             current_site = get_current_site(request)
-            mail_subject = "Por favor, activa tu cuenta"
-            mensage = render_to_string(
+            mail_subject = "Activar cuenta con Gadgets Future"
+            mensaje = render_to_string(
                 "client/cuenta/activar_cuenta.html",
                 {
                     "usuario": crear_usuario,
@@ -70,7 +70,9 @@ def registrarse(request):
             )
 
             to_email = correo_electronico
-            send_email = EmailMessage(mail_subject, mensage, to=[to_email])
+            # EmailMessage
+            send_email = EmailMultiAlternatives(mail_subject, mensaje, to=[to_email])
+            send_email.attach_alternative(mensaje, "text/html")
             send_email.send()
 
             messages.info(
@@ -82,18 +84,6 @@ def registrarse(request):
                 "/cuenta/inicio_sesion/?command=verificacion&email="
                 + correo_electronico
             )
-
-            """usuarios = auth.authenticate(
-                correo_electronico=correo_electronico, password=password
-            )
-
-            if usuarios is not None:
-                auth.login(request, usuarios)
-                messages.success(
-                    request,
-                    f"Registro exito {usuarios.nombre} {usuarios.apellido}",
-                )
-            return redirect("index")"""
     else:
         formulario = RegistroForms()
     return render(request, "client/cuenta/registrarse.html", {"form": formulario})
@@ -144,14 +134,6 @@ def inicio_sesion(request):
                     messages.success(
                         request, f"Bienvenido {usuarios.nombre} {usuarios.apellido}"
                     )
-
-                    # carrito_s = CarritoSesion.objects.get(carrito_session=_carrito_sesion(request))
-                    # carrito_existe=Carrito.objects.filter(carritoSesion=carrito_s).exists()
-                    # if carrito_existe:
-                    #     articulo = Carrito.objects.filter(carrito=carrito_s)
-                    #     for a in articulo:
-                    #         a.usuario=usuarios
-                    #         a.save()
                     return redirect("index")
             else:
                 messages.error(request, "Tu cuenta está desactivada.")
@@ -226,7 +208,8 @@ def recuperar_password(request):
             )
 
             to_email = correo_electronico
-            send_email = EmailMessage(mail_subject, mensaje, to=[to_email])
+            send_email = EmailMultiAlternatives(mail_subject, mensaje, to=[to_email])
+            send_email.attach_alternative(mensaje, "text/html")
             send_email.send()
 
             messages.success(

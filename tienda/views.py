@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Producto, Categoria, Valoraciones
 from pedido.models import Pedido
-from carrito.models import Carrito, CarritoSesion
+from carrito.models import Carrito
 from carrito.views import _carrito_sesion
 from django.contrib import messages
 from .forms import ValoracionesForm, ProductoForm
@@ -57,13 +57,6 @@ def detalle_producto(request, categoria_slug, producto_slug):
         producto_unico = Producto.objects.get(
             categoria__slug=categoria_slug, slug=producto_slug
         )
-
-        # TODO Creamos esta linea de codigo para saber si el producto ya esta agregado al carrito,
-        # TODO Si esta agregado en vista producto detalle, el boton de agregar al carrito va a cambiar a ir a carrito
-        carrito = Carrito.objects.filter(
-            carritoSesion__carrito_session=_carrito_sesion(request),
-            producto=producto_unico,
-        ).exists()
     except Exception as e:
         raise e
 
@@ -85,7 +78,6 @@ def detalle_producto(request, categoria_slug, producto_slug):
             "producto_unico": producto_unico,
             "review": reviews,
             "pedido": pedido,
-            "carrito": carrito,
         },
     )
 
@@ -96,13 +88,11 @@ def filtro_buscar_producto(request):
     if "txtBusqueda" in request.GET:
         # Si está presente, obtenemos el valor de la palabra clave de la solicitud GET
         txtBusqueda = request.GET["txtBusqueda"]
-
         # Verificamos si la palabra clave no está vacía
         if txtBusqueda:
             palabra_busqueda = Producto.objects.filter(
                 Q(nombre__icontains=txtBusqueda) | Q(descripcion__icontains=txtBusqueda)
             )
-
             # Contador de productos encontrados
             contar_productos = palabra_busqueda.count()
             if contar_productos == 0:
@@ -376,7 +366,7 @@ def detalle_producto_admin(request, id_producto):
         try:
             # Actualizar
             detalle_producto = get_object_or_404(Producto, pk=id_producto)
-            form = ProductoForm(request.POST, instance=detalle_producto)
+            form = ProductoForm(request.POST,  request.FILES, instance=detalle_producto)
             form.save()
             messages.success(request, "Producto actualizado")
             return redirect("lista_productos")

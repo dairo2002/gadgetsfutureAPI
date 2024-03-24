@@ -40,7 +40,7 @@ class Categoria(models.Model):
 class Producto(models.Model):
     nombre = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
-    descripcion = models.TextField(max_length=500, blank=True)
+    descripcion = models.TextField(max_length=1000, blank=True)
     precio = models.DecimalField(max_digits=12, decimal_places=2)
     stock = models.IntegerField()
     # FileExtensionValidator permite cargar imagenes con la extencion especifica que pasamos

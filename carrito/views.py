@@ -1,14 +1,14 @@
-import json
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from tienda.models import Producto
-from .models import CarritoSesion, Carrito
+from .models import  Carrito
 from django.urls import resolve
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 import locale, decimal
+import json
 
 
 def _carrito_sesion(request):
@@ -22,34 +22,38 @@ def _carrito_sesion(request):
     return carrito
 
 
-@login_required(login_url="inicio_sesion")
+
 def add(request, producto_id):
     if request.method == "POST":
         cantidad_str = request.POST.get("txtCantidad")
         if cantidad_str is not None and cantidad_str.isdigit():
             cantidad = int(cantidad_str)
-            print("cantidad ", cantidad)
             if cantidad > 0:
                 producto = get_object_or_404(Producto, pk=producto_id)
-                if producto.stock >= cantidad:
-                    if request.user.is_authenticated:
-                        # carrito, _ = Carrito.objects.get_or_create(usuario=request.user, activo=True, producto=producto)
-                        # carrito.cantidad += cantidad
-                        # carrito.save()
-                        if Carrito.objects.filter(usuario=request.user, producto=producto).exists():
-                            carrito = Carrito.objects.get(usuario=request.user, producto=producto)
-                            carrito.cantidad += cantidad
+                if producto.stock >= cantidad:  
+                    if request.user.is_authenticated:                  
+                        # itemCarrito = Carrito()
+                        # carrito = CarritoUser()
+                    
+                        item, created = Carrito.objects.get_or_create(producto=producto, cantidad=cantidad)  
+                        if not created:
+                            item.cantidad += cantidad
                         else:
-                            carrito = Carrito(usuario=request.user, producto=producto, cantidad=cantidad)
-                        carrito.save()
-                    else:
-                        carrito_temporal = request.session.get('carrito_temporal', {})
-                        print("Temporal",carrito_temporal)
-                        carrito_temporal[producto_id] = carrito_temporal.get(producto_id, 0)+cantidad
-                        request.session['carrito_temporal']= carrito_temporal            
-                        messages.success(request, f"{producto.nombre} ha sido agregado al carrito temporal.")            
-                        # messages.warning(request, "Por favor, inicia sesión para agregar productos a tu carrito.")    
-                        return redirect("mostrar_carrito")
+                            item.cantidad = cantidad
+                        item.save()
+                        print("producto: ",producto )
+                        print("cantidad: ",cantidad )
+                        return redirect('mostrar_carrito')
+                    else:                         
+                        item, created = Carrito.objects.get_or_create(producto=producto, cantidad=cantidad)  
+                        if not created:
+                            item.cantidad += cantidad
+                        else:
+                            item.cantidad = cantidad
+                        item.save()
+                        print("producto: ",producto )
+                        print("cantidad: ",cantidad )
+                        return redirect('inicio_sesion')
                 else:
                     messages.error(request, "La cantidad solicitada excede el stock disponible")    
             else:
@@ -92,11 +96,8 @@ def delete_cantidad_carrito(request, producto_id, carrito_id):
                 producto=producto, usuario=request.user, id=carrito_id
             )
         else:
-            carrito_sesion = CarritoSesion.objects.get(
-                carrito_session=_carrito_sesion(request)
-            )
             carrito = Carrito.objects.get(
-                producto=producto, carritoSesion=carrito_sesion, id=carrito_id
+                producto=producto, id=carrito_id
             )
         #  Actualización de la cantidad del carrito
         if carrito.cantidad > 1:
@@ -119,11 +120,8 @@ def delete_producto_carrito(request, producto_id, carrito_id):
             producto=producto, usuario=request.user, id=carrito_id
         )
     else:
-        carrito_sesion = CarritoSesion.objects.get(
-            carrito_session=_carrito_sesion(request)
-        )
         carrito = Carrito.objects.get(
-            producto=producto, carritoSesion=carrito_sesion, id=carrito_id
+            producto=producto, id=carrito_id
         )
     carrito.delete()
     return redirect("mostrar_carrito")
