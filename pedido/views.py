@@ -12,7 +12,7 @@ from django.dispatch import receiver
 
 # Correo electronico
 from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 
 from cuenta.models import Cuenta
 
@@ -152,10 +152,13 @@ def email_info_pedido(sender, instance, **kwargs):
         )
 
         to_email = pedido.correo_electronico
-        send_email = EmailMessage(mail_subject, mensaje, to=[to_email])
+        send_email = EmailMultiAlternatives(mail_subject, mensaje, to=[to_email])
+        send_email.attach_alternative(mensaje, "text/html")
         send_email.send()
 
         actualizar_stock(instance)
+
+        # ! Crear gmail cuando el pedido sea incorrecto
 
 
 

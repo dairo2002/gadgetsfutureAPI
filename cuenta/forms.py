@@ -1,3 +1,4 @@
+import re
 from django import forms
 from .models import Cuenta
 
@@ -18,6 +19,11 @@ class RegistroForms(forms.ModelForm):
         model = Cuenta
         # Traemos los campos del modelo de cuenta, que son aplicados al formulario,
         fields = ["nombre", "apellido", "correo_electronico", "telefono", "password"]
+
+        labels = {
+            "telefono": "Teléfono",
+            "correo_electronico": "Correo electrónico",
+        }
 
     # Funcion clean() validar campos
     def clean_confirm_pwd(self):
@@ -40,6 +46,9 @@ class RegistroForms(forms.ModelForm):
             raise forms.ValidationError(
                 "Las contraseña debe tener de 5 a 12 caracteres"
             )
+        
+        if not re.search(r'\d', password) or not re.search(r'[a-zA-Z]', confirmar_password):
+            raise forms.ValidationError("La contraseña debe contener al menos una letra y un número")
 
         return password
 
@@ -79,6 +88,10 @@ class RegistroForms(forms.ModelForm):
             )
 
         return telefono
+    
+        
+
+
 
     def __init__(self, *args, **kwargs):
         super(RegistroForms, self).__init__(*args, **kwargs)
@@ -87,7 +100,7 @@ class RegistroForms(forms.ModelForm):
         self.fields["correo_electronico"].widget.attrs[
             "placeholder"
         ] = "Dirección correo electrónico"
-        self.fields["telefono"].widget.attrs["placeholder"] = "Numero telefónico"
+        self.fields["telefono"].widget.attrs["placeholder"] = "Número telefónico"
 
         # Se itera para que cada campo tenga la misma clase
         for field in self.fields:

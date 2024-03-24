@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegistroForms
 from .models import Cuenta
 from django.contrib import auth, messages
+from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 
 # importaciones email
@@ -44,6 +45,10 @@ def registrarse(request):
             # Toma la dirección de correo electrónico y extrae el como nombre de usuario lo que antes símbolo "@", con esto tambien evitamos repetidos
             usuario = correo_electronico.split("@")[0]
 
+            if Cuenta.objects.filter(username=usuario).exists():
+                messages.warning(request, 'El nombre de usuario ya existe')
+                return redirect("registrarse")
+            
             # metodo create_user creado en ManejadorCuenta
             crear_usuario = Cuenta.objects.create_user(
                 nombre=nombre,
